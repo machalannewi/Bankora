@@ -1,0 +1,13 @@
+.glass-card {
+  background: #ecfdf5;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  color: rgb(5 150 105);
+  text-shadow: 
+    0 0 5px #059669;
+}
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(20px);
+}

@@ -110,7 +110,7 @@ const Wallet = () => {
         
         localStorage.removeItem("token")
         setTimeout(() => {
-            navigate("/")
+            navigate("/login")
         }, 2000)
     }
 

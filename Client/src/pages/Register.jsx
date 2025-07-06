@@ -41,7 +41,7 @@ function Register() {
             if(res.ok) {
              console.log("Data:", data);
              setTimeout(() => {
-                navigate("/")
+                navigate("/login")
              }, 2000)
             } else {
              console.log("Error Registering User")
