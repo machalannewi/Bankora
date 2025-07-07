@@ -29,7 +29,7 @@ const validateLogin = (req, res, next) => {
 
     return res.status(422).json({
         success: false,
-        message: "Validation failed",
+        message: extractedErrors.undefined,
         errors: extractedErrors
     });
 
