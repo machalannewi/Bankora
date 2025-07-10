@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom"
 import "../../global.css"
+
 
 const Hero = () => {
   return (
@@ -38,12 +40,12 @@ const Hero = () => {
               Fast, secure payments between friends, family and businesses
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <a
-                href="#"
+              <Link
+                to="/register"
                 className="rounded-full bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 Get started
-              </a>
+              </Link>
               <a href="#" className="rounded-full shadow-gray-500 bg-white px-3.5 py-2.5 text-sm font-semibold text-black shadow-xs">
                 How It Works <span aria-hidden="true"></span>
               </a>

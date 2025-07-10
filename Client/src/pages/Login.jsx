@@ -1,46 +1,66 @@
 import { useState } from "react"
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import useUserStore from "@/stores/userStore"
+
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
+    rememberMe: false
   })
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [errors, setErrors] = useState({})
+  const [successMessage, setSuccessMessage] = useState("")
+
   const navigate = useNavigate()
+  const setUser = useUserStore((state) => state.setUser);
+  
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    if (error) setError("")
+    const { name, value, type, checked } = e.target
+    const fieldValue = type === 'checkbox' ? checked : value
+    
+    setFormData(prev => ({ ...prev, [name]: fieldValue }))
+    
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }))
+    }
+    
+    if (errors.general) {
+      setErrors(prev => ({ ...prev, general: "" }))
+    }
+    
+    if (successMessage) setSuccessMessage("")
   }
 
   const validateForm = () => {
-    if (!formData.email || !formData.password) {
-      setError("Please fill in all fields")
-      return false
+    const newErrors = {}
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required"
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address"
+      }
     }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.email)) {
-      setError("Please enter a valid email address")
-      return false
+
+    if (!formData.password) {
+      newErrors.password = "Password is required"
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long"
     }
-    
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      return false
-    }
-    
-    return true
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
@@ -49,38 +69,58 @@ const Login = () => {
     if (!validateForm()) return
     
     setIsLoading(true)
-    setError("")
+    setErrors({})
+    setSuccessMessage("")
 
     try {
+      const { rememberMe, ...loginData } = formData
+      
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(loginData)
       })
 
       const data = await res.json()
+      console.log(data);
 
       if (res.ok) {
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
+        if (formData.rememberMe) {
+          localStorage.setItem("token", data.token)
+          localStorage.setItem("user", JSON.stringify(data.user))
+        } else {
+          sessionStorage.setItem("token", data.token)
+          sessionStorage.setItem("user", JSON.stringify(data.user))
+        }
+        
+        setSuccessMessage(`Welcome back, ${data.user.username || data.user.firstName}! Redirecting to your wallet...`)
+        
+        setFormData({
+          email: "",
+          password: "",
+          rememberMe: false
+        })
         
         setTimeout(() => {
-          navigate("/wallet", {
-            state: {
-              userName: data.user.username,
-              balance: data.user.balance,
-              userEmail: data.user.email
-            }
-          })
-        }, 1000)
+          setUser(data)
+          navigate("/wallet")
+        }, 2000)
       } else {
-        setError(data.message || "Login failed. Please check your credentials and try again.")
+        if (data.errors) {
+          setErrors(data.errors)
+        } else {
+          setErrors({ 
+            general: data.message || "Login failed. Please check your credentials and try again." 
+          })
+        }
       }
     } catch (error) {
       console.error("Login error:", error)
-      setError("Network error. Please check your connection and try again.")
+      setErrors({ 
+        general: "Network error. Please check your connection and try again." 
+      })
     } finally {
       setIsLoading(false)
     }
@@ -90,8 +130,26 @@ const Login = () => {
     navigate("/register")
   }
 
+  const handleForgotPassword = () => {
+    navigate("/forgot-password")
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex items-center justify-center p-4">
+
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex">
+     {/* Left side - Image */}
+      <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-teal-600/20 z-10"></div>
+        <img 
+          src="/assets/5179450.jpg" 
+          alt="Modern office workspace" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+
+    {/* Right side - Image */}
+    <div className="flex-1 flex items-center justify-center p-4 lg:flex-initial lg:w-1/2">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-teal-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
@@ -101,17 +159,32 @@ const Login = () => {
           <p className="text-gray-600">Sign in to your account to continue</p>
         </div>
 
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+        {/* Success Message */}
+        {successMessage && (
+          <Alert className="mb-6 border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              {successMessage}
+            </AlertDescription>
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <div className="relative">
+        {/* General Error Message */}
+        {errors.general && (
+          <Alert className="mb-6 border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              {errors.general}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="space-y-6">
+          <div>
+            <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              Email Address
+            </Label>
+            <div className="relative mt-2">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type="email"
@@ -119,17 +192,21 @@ const Login = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="pl-10"
+                className={`pl-10 ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Enter your email"
                 disabled={isLoading}
-                required
               />
             </div>
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
+          <div>
+            <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              Password
+            </Label>
+            <div className="relative mt-2">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type={showPassword ? 'text' : 'password'}
@@ -137,10 +214,9 @@ const Login = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="pl-10 pr-12"
+                className={`pl-10 pr-12 ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Enter your password"
                 disabled={isLoading}
-                required
               />
               <button
                 type="button"
@@ -151,17 +227,29 @@ const Login = () => {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+            )}
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="remember" disabled={isLoading} />
-              <Label htmlFor="remember" className="text-sm text-gray-600">
+            <div className="flex items-start">
+              <Checkbox
+                id="rememberMe"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onCheckedChange={(checked) => 
+                  handleChange({ target: { name: 'rememberMe', type: 'checkbox', checked } })
+                }
+                disabled={isLoading}
+              />
+              <Label htmlFor="rememberMe" className="ml-2 text-sm text-gray-600">
                 Remember me
               </Label>
             </div>
             <button
               type="button"
+              onClick={handleForgotPassword}
               className="text-sm text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50"
               disabled={isLoading}
             >
@@ -171,14 +259,13 @@ const Login = () => {
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700 transition-all transform hover:scale-105"
+            onClick={handleSubmit}
+            className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             disabled={isLoading}
           >
             {isLoading ? "Signing In..." : "Sign In"}
           </Button>
-        </form>
-
-
+        </div>
 
         <div className="mt-8 text-center">
           <p className="text-gray-600">
@@ -229,6 +316,8 @@ const Login = () => {
         </div>
       </div>
     </div>
+    </div>
+
   )
 }
 

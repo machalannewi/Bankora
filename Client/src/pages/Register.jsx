@@ -162,7 +162,19 @@ function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex">
+     {/* Left side - Image */}
+      <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-teal-600/20 z-10"></div>
+        <img 
+          src="/assets/7993842.jpg" 
+          alt="Modern office workspace" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+    {/* Right side - Image */}
+    <div className="flex-1 flex items-center justify-center p-4 lg:flex-initial lg:w-1/2">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-teal-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
@@ -429,6 +441,8 @@ function Register() {
         </div>
       </div>
     </div>
+    </div>
+
   );
 }
 

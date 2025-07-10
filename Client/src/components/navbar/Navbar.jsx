@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+
 
 const navigation = [
   { name: 'Features', href: '#' },
@@ -46,12 +48,12 @@ function Navbar() {
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-2">
-            <a href="#" className="text-sm/6 font-semibold text-white bg-black px-5 py-2 rounded-md">
+            <Link to="/login" className="text-sm/6 font-semibold text-white bg-black px-5 py-2 rounded-md">
               Log In
-            </a>
-            <a href="#" className="text-sm/6 font-semibold text-white bg-black px-5 py-2 rounded-md">
+            </Link>
+            <Link to="/register" className="text-sm/6 font-semibold text-white bg-black px-5 py-2 rounded-md">
               Sign Up
-            </a>
+            </Link>
           </div>
         </nav>
         <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
