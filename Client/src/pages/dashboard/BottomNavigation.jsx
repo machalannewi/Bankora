@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { Home, Landmark, WalletCards, CreditCard, LayoutPanelLeft } from 'lucide-react';
+import useUIStore from '@/stores/uiStore';
 
 const BottomNavigation = () => {
   const [activeTab, setActiveTab] = useState('Home');
+
+  const isEditProfileModalOpen = useUIStore((state) => state.isEditProfileModalOpen);
+
+   if (isEditProfileModalOpen) return null;
 
   const navItems = [
     { name: 'Home', icon: Home },

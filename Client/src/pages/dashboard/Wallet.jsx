@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
 import axios from "axios";
 import BottomNavigation from "./BottomNavigation"
+import ProfileHeader from "./Header"
 import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send } from "lucide-react"
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
@@ -32,6 +33,8 @@ const Dashboard = () => {
     const navigate = useNavigate()
     const socketRef = useRef(null)
     const user = useUserStore((state) => state.user)
+    const cancelUser = useUserStore((state) => state.cancelUser);
+    const clearStorage = useUserStore((state) => state.clearStorage);
     
     // const username = location.state?.userName || "Guest"
     // const initialBalance = location.state?.balance || "0.00"
@@ -181,8 +184,14 @@ const Dashboard = () => {
             socketRef.current.disconnect()
         }
         
-        localStorage.removeItem("token")
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
         setTimeout(() => {
+            cancelUser()
+            clearStorage()
             navigate("/login")
         }, 2000)
     }
@@ -206,44 +215,7 @@ const Dashboard = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <div className="bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center py-4">
-                        <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-                                <span className="text-white font-bold text-lg">W</span>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                   {time < 12
-                                    ? "Good Morning"
-                                    : time >= 12 && time < 18
-                                    ? "Good Afternoon"
-                                    : "Good Evening"},
-                                </p>
-                                <p className="font-semibold">{user?.user.username}</p>
-                            </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-4">      
-                            {/* Logout Button */}
-                            {/* <button
-                                onClick={handleLogOut}
-                                disabled={isLoading}
-                                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isLoading ? "Logging Out..." : "Log Out"}
-                            </button> */}
-                            <div className="w-10 h-10 text-black bg-blue-100 rounded-full flex items-center justify-center">
-                                <UserCog />
-                            </div>
-                            <div className="w-10 h-10 text-black bg-blue-100 rounded-full flex items-center justify-center">
-                                <BellIcon className="h-6"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <ProfileHeader user={user} handleLogOut={() => handleLogOut()} isLoading={isLoading} time={time}/>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Main Balance Card */}
