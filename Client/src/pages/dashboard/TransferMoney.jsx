@@ -97,6 +97,13 @@ const TransferMoney = () => {
 
   const isFormValid = transferData.receiverIdentifier.trim() && transferData.amount && parseFloat(transferData.amount) > 0;
 
+
+  useEffect(() => {
+  axios.get(`/api/transactions/${userId}`)
+    .then(res => setTransactions(res.data))
+    .catch(err => console.error(err));
+}, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}

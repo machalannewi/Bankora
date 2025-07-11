@@ -1,13 +1,31 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
+import axios from "axios";
+import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send } from "lucide-react"
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
+import {
+  PhoneIcon,
+  SignalIcon,
+  LightBulbIcon,
+  BellIcon
+} from '@heroicons/react/24/solid';
 
-const Wallet = () => {
+const Dashboard = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [balance, setBalance] = useState(0)
     const [notifications, setNotifications] = useState([])
     const [isConnected, setIsConnected] = useState(false)
+    const [time, setTime] = useState(new Date())
+    const [showBalance, setShowBalance] = useState(true);
+    const [transactions, setTransactions] = useState([]);
+    const [showAll, setShowAll] = useState(false)
+
+
+    
+
+
+    
     
     // const location = useLocation()
     const navigate = useNavigate()
@@ -23,6 +41,7 @@ const Wallet = () => {
         if (user?.user.email) {
             // Set initial balance
             setBalance(parseFloat(user?.user.balance))
+            setTime(time.getHours())
             
             // Initialize socket connection
             socketRef.current = io('http://localhost:5000')
@@ -86,6 +105,50 @@ const Wallet = () => {
         }
     }, [user?.user])
 
+    
+    useEffect(() => {
+    axios.get(`http://localhost:5000/api/transactions/${user?.user.id}`)
+        .then(res => {
+        console.log("Fetched transactions:", res.data);
+        setTransactions(res.data);
+        })
+        .catch(err => console.error(err));
+    }, [user?.user.id]);
+
+    console.log(transactions)
+
+
+    // const isCredit = transactions.receiver_id === user?.user.id;
+    // const name = isCredit ? transactions.sender_name : transactions.receiver_name;
+
+
+
+  const formatDateTime = (dateString) => {
+  const date = new Date(dateString);
+  
+  const day = date.getDate();
+  const ordinal = day + (day > 3 && day < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][day % 10] || 'th');
+  
+  const month = date.toLocaleDateString('en-GB', {
+    month: 'short',
+  });
+
+  console.log(month)
+  const year = date.toLocaleDateString('en-GB', {
+    year: 'numeric',
+  });
+  
+  const time = date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  return `${ordinal} ${month}, ${year} | ${time}`;
+};
+
+
+
     // Fetch balance from server
     const fetchBalance = async () => {
         try {
@@ -125,6 +188,7 @@ const Wallet = () => {
 
     // Navigate to transfer page
     function sendMoney() {
+        console.log(time)
         navigate("/transfer")
     }
 
@@ -157,28 +221,32 @@ const Wallet = () => {
                                 <span className="text-white font-bold text-lg">W</span>
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Wallet</h1>
-                                <p className="text-sm text-gray-600">Welcome back, {user?.user.username}</p>
+                                <p className="text-sm text-gray-600">
+                                   {time < 12
+                                    ? "Good Morning"
+                                    : time >= 12 && time < 18
+                                    ? "Good Afternoon"
+                                    : "Good Evening"},
+                                </p>
+                                <p className="font-semibold">{user?.user.username}</p>
                             </div>
                         </div>
                         
-                        <div className="flex items-center space-x-4">
-                            {/* Connection Status */}
-                            {/* <div className="flex items-center space-x-2">
-                                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                <span className={`text-sm font-medium ${isConnected ? 'text-green-700' : 'text-red-700'}`}>
-                                    {isConnected ? 'Connected' : 'Disconnected'}
-                                </span>
-                            </div> */}
-                            
+                        <div className="flex items-center space-x-4">      
                             {/* Logout Button */}
-                            <button
+                            {/* <button
                                 onClick={handleLogOut}
                                 disabled={isLoading}
                                 className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? "Logging Out..." : "Log Out"}
-                            </button>
+                            </button> */}
+                            <div className="w-10 h-10 text-black bg-blue-100 rounded-full flex items-center justify-center">
+                                <UserCog />
+                            </div>
+                            <div className="w-10 h-10 text-black bg-blue-100 rounded-full flex items-center justify-center">
+                                <BellIcon className="h-6"/>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,137 +254,220 @@ const Wallet = () => {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Main Balance Card */}
-                <div className="bg-gradient-to-r from-black to-gray-800 rounded-2xl p-8 text-white mb-8 shadow-xl">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-gray-300 text-sm font-medium mb-2">Total Balance</p>
-                            <div className="flex items-center space-x-4">
-                                <h2 className="text-4xl font-bold">${balance.toFixed(2)}</h2>
-                                <button 
-                                    onClick={refreshBalance}
-                                    className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-                                    title="Refresh Balance"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-gray-300 text-sm">Account Status</p>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
-                                Active
-                            </span>
-                        </div>
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 md:p-8 text-white shadow-xl max-w-md md:max-w-5xl lg:max-w-7xl mx-auto mb-12">
+            {/* Desktop Layout */}
+            <div className="hidden md:flex md:justify-between md:items-start">
+                {/* Left Section - Balance Info */}
+                <div className="flex-1">
+                <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                    <Wallet className="h-5 w-5 text-white/80" />
+                    <p className="text-white/80 text-base font-medium">Wallet Balance</p>
+                    </div>
+                    <button
+                    onClick={() => setShowBalance(!showBalance)}
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                    >
+                    {showBalance ? <EyeOff className="w-5 h-5 text-white/80" /> : <Eye className="w-5 h-5 text-white/80" />}
+                    </button>
+                </div>
+                <div className="mb-6">
+                    <h2 className="text-5xl lg:text-6xl font-bold text-white mb-2">
+                    {showBalance ? "$" + balance.toFixed(2, 0) : '••••••••'}
+                    </h2>
+                    <div>
+                    <p className="text-white/70 text-sm mb-1">Account details</p>
+                    <div className="flex items-center space-x-2">
+                        <span className="text-white/90 text-base">
+                        {user?.user.firstName} {user?.user.lastName} ({user?.user.phone})
+                        </span>
+                        <Copy className="h-4 w-4 text-white/70 cursor-pointer hover:text-white transition-colors" />
+                    </div>
                     </div>
                 </div>
+                </div>
+
+                {/* Right Section - Action Buttons */}
+                <div className="flex flex-col space-y-3 ml-8">
+                <button 
+                onClick={sendMoney}
+                className="flex items-center space-x-3 bg-white text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-white/90 transition-colors min-w-max">
+                    <ArrowUpRight className="h-5 w-5" />
+                    <span>Transfer</span>
+                </button>
+                <button className="flex items-center space-x-3 border border-white/30 text-white px-6 py-3 rounded-full text-base font-medium hover:bg-white/10 transition-colors min-w-max">
+                    <Plus className="h-5 w-5" />
+                    <span>Add Money</span>
+                </button>
+                </div>
+            </div>
+
+            {/* Mobile Layout */}
+            <div className="md:hidden grid place-items-center">
+                {/* Header with wallet icon and balance text */}
+                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center space-x-2">
+                    <Wallet className="h-4 w-4 text-white/80" />
+                    <p className="text-white/80 text-sm font-medium">Wallet Balance</p>
+                </div>
+                <button
+                    onClick={() => setShowBalance(!showBalance)}
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                >
+                    {showBalance ? <EyeOff className="w-4 h-4 text-white/80" /> : <Eye className="w-4 h-4 text-white/80" />}
+                </button>
+                </div>
+
+                {/* Balance Amount */}
+                <div className="mb-4">
+                <h2 className="text-3xl font-bold text-white">
+                    {showBalance ? "$" + balance.toFixed(2, 0) : '••••••••'}
+                </h2>
+                </div>
+
+                {/* Account Details */}
+                <div className="mb-6">
+                <p className="text-white/70 text-xs mb-1 grid place-content-center">Account details</p>
+                <div className="flex items-center space-x-1">
+                    <span className="text-white/90 text-sm">
+                    {user?.user.firstName} {user?.user.lastName} ({user?.user.phone})
+                    </span>
+                    <Copy className="h-3 w-3 text-white/70 cursor-pointer hover:text-white transition-colors" />
+                </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                <button
+                 onClick={sendMoney}
+                 className="flex items-center space-x-2 bg-white text-blue-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">
+                    <ArrowUpRight className="h-4 w-4" />
+                    <span>Transfer</span>
+                </button>
+                <button className="flex items-center space-x-2 border border-white/30 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
+                    <Plus className="h-4 w-4" />
+                    <span>Add Money</span>
+                </button>
+                </div>
+            </div>
+            </div>
 
                 {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    
+                <div className="mb-4 font-semibold flex justify-between">
+                    <p className="md:text-lg">Quick Access</p>
+                    <p className="text-blue-800 text-sm cursor-pointer">View All</p>
+                </div>
+                <div className="grid grid-cols-4 gap-4 mb-8">
                     <button
                         onClick={sendMoney}
-                        className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group"
+                        className="bg-blue-100 md:h-32 p-2 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group"
                     >
-                        <div className="flex items-center justify-between">
-                            <div className="text-left">
-                                <p className="text-sm font-medium text-gray-600">Send Money</p>
-                                <p className="text-lg font-semibold text-gray-900">Transfer</p>
-                            </div>
-                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                </svg>
-                            </div>
-                        </div>
+                    <div className="flex items-center justify-center w-full">
+                    <div className="text-center">
+                        <PhoneIcon className="mx-auto h-6 md:h-12 text-sm my-2 text-blue-800" />
+                        <p className="font-semibold text-sm text-gray-900">Airtime</p>
+                    </div>
+                    </div>
+
+                    </button>
+                    <button
+                        onClick={sendMoney}
+                        className="bg-blue-100 md:h-32 p-2 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group"
+                    >
+                    <div className="flex items-center justify-center w-full">
+                    <div className="text-center">
+                        <SignalIcon className="mx-auto h-6 md:h-12 text-sm md:text-2xl my-2 text-blue-800" />
+                        <p className="font-semibold text-sm text-gray-900">Internet</p>
+                    </div>
+                    </div>
+
+                    </button>
+                    <button
+                        onClick={sendMoney}
+                        className="bg-blue-100 p-2 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group"
+                    >
+                    <div className="flex items-center justify-center w-full">
+                    <div className="text-center">
+                        <LightBulbIcon  className="mx-auto h-6 md:h-12 text-sm my-2 mb-2 text-blue-800" />
+                        <p className="font-semibold text-sm text-gray-900">Electricity</p>
+                    </div>
+                    </div>
+
+                    </button>
+                    <button
+                        onClick={sendMoney}
+                        className="bg-blue-100 p-2 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group"
+                    >
+                    <div className="flex items-center justify-center w-full">
+                    <div className="text-center">
+                        <DicesIcon className="mx-auto my-2 mb-2 text-blue-800" />
+                        <p className="font-semibold text-sm text-gray-900">Betting</p>
+                    </div>
+                    </div>
+
                     </button>
 
-                    <button className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                        <div className="flex items-center justify-between">
-                            <div className="text-left">
-                                <p className="text-sm font-medium text-gray-600">Receive Money</p>
-                                <p className="text-lg font-semibold text-gray-900">Request</p>
-                            </div>
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-                                </svg>
-                            </div>
-                        </div>
-                    </button>
 
-                    <button className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                        <div className="flex items-center justify-between">
-                            <div className="text-left">
-                                <p className="text-sm font-medium text-gray-600">Add Money</p>
-                                <p className="text-lg font-semibold text-gray-900">Top Up</p>
-                            </div>
-                            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                            </div>
-                        </div>
-                    </button>
 
-                    <button className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                        <div className="flex items-center justify-between">
-                            <div className="text-left">
-                                <p className="text-sm font-medium text-gray-600">View History</p>
-                                <p className="text-lg font-semibold text-gray-900">Transactions</p>
-                            </div>
-                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                                <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </button>
                 </div>
 
                 {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Recent Transactions */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
-                            <button className="text-sm text-black hover:text-gray-700 font-medium">View All</button>
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="md:text-lg font-semibold text-gray-900">Transactions</h3>
+                        <button 
+                        onClick={() => setShowAll(!showAll)}
+                        className="text-sm text-blue-800 hover:text-blue-800 font-semibold cursor-pointer">
+                           {showAll ? "Show less" : "View All"}
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                    {(showAll ? transactions : transactions.slice(0, 3)).map((transaction) => {
+                        const isCredit = transaction.receiver_id === user?.user.id;
+                        const name = isCredit ? transaction.sender_name : transaction.receiver_name;
+
+                        return (
+                        <div
+                            key={transaction.id}
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                            <div className="flex items-center space-x-3">
+                            <div
+                                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                isCredit ? 'bg-green-100' : 'bg-red-100'
+                                }`}
+                            >
+                                {isCredit ? (
+                                <Send className="text-green-600 rotate-90" />
+                                ) : (
+                                <Send className="text-red-600" />
+                                )}
+                            </div>
+                            <div>
+                                <p className="font-medium text-gray-900">{name}</p>
+                                <p className="text-sm text-gray-500">
+                                {formatDateTime(transaction.created_at)}
+                                </p>
+                            </div>
+                            </div>
+
+                            <div className="text-right">
+                            <p
+                                className="font-semibold text-black"
+                            >
+                                {isCredit ? '+' : '-'}${Number(transaction.amount).toLocaleString()}
+                            </p>
+                            <p className="text-sm text-green-600">{transaction.status === "completed" ? "Successful" : "Failed" }</p>
+                            </div>
                         </div>
-                        <div className="space-y-4">
-                            {recentTransactions.map((transaction) => (
-                                <div key={transaction.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                    <div className="flex items-center space-x-3">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                            transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'
-                                        }`}>
-                                            {transaction.type === 'credit' ? (
-                                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-                                                </svg>
-                                            ) : (
-                                                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                                </svg>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900">{transaction.description}</p>
-                                            <p className="text-sm text-gray-500">
-                                                {transaction.type === 'credit' ? `From: ${transaction.from}` : `To: ${transaction.to}`}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className={`font-semibold ${
-                                            transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
-                                        }`}>
-                                            {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                                        </p>
-                                        <p className="text-sm text-gray-500">{transaction.date}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        );
+                    })}
+                    </div>
+
                     </div>
 
                     {/* Notifications */}
@@ -426,4 +577,4 @@ const Wallet = () => {
     )
 }
 
-export default Wallet
+export default Dashboard

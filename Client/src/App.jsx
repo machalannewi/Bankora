@@ -3,7 +3,7 @@ import 'keen-slider/keen-slider.min.css';
 import Home from "./pages/Home"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
-import Wallet from "./pages/dashboard/Wallet"
+import Dashboard from "./pages/dashboard/Wallet"
 import TransferMoney from "./pages/dashboard/TransferMoney"
 
 
@@ -18,7 +18,7 @@ function App() {
       <Route path="/" element={<Home/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
-      <Route path="/wallet" element={<Wallet/>}/>
+      <Route path="/wallet" element={<Dashboard/>}/>
       <Route path="/transfer" element={<TransferMoney/>}/>
     </Routes>
 
