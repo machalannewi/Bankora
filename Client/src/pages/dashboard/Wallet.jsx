@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
 import axios from "axios";
+import BottomNavigation from "./BottomNavigation"
 import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send } from "lucide-react"
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
@@ -202,18 +203,10 @@ const Dashboard = () => {
         setNotifications([])
     }
 
-    // Mock data for recent transactions
-    const recentTransactions = [
-        { id: 1, type: 'credit', amount: 250.00, description: 'Salary Credit', date: '2025-01-15', from: 'Company Ltd' },
-        { id: 2, type: 'debit', amount: 45.50, description: 'Online Shopping', date: '2025-01-14', to: 'E-commerce Store' },
-        { id: 3, type: 'credit', amount: 120.00, description: 'Freelance Payment', date: '2025-01-13', from: 'Client ABC' },
-        { id: 4, type: 'debit', amount: 30.00, description: 'Coffee & Snacks', date: '2025-01-12', to: 'Cafe Corner' },
-    ]
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <div className="bg-white shadow-sm border-b border-gray-200">
+            <div className="bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center py-4">
                         <div className="flex items-center space-x-4">
@@ -221,7 +214,7 @@ const Dashboard = () => {
                                 <span className="text-white font-bold text-lg">W</span>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-500">
                                    {time < 12
                                     ? "Good Morning"
                                     : time >= 12 && time < 18
@@ -254,7 +247,7 @@ const Dashboard = () => {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Main Balance Card */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 md:p-8 text-white shadow-xl max-w-md md:max-w-5xl lg:max-w-7xl mx-auto mb-12">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 md:p-8 text-white shadow-xl max-w-md md:max-w-5xl lg:max-w-7xl mx-auto mb-8 -mt-4">
             {/* Desktop Layout */}
             <div className="hidden md:flex md:justify-between md:items-start">
                 {/* Left Section - Balance Info */}
@@ -292,11 +285,15 @@ const Dashboard = () => {
                 <button 
                 onClick={sendMoney}
                 className="flex items-center space-x-3 bg-white text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-white/90 transition-colors min-w-max">
-                    <ArrowUpRight className="h-5 w-5" />
+                    <div className="w-6 h-6 text-white bg-blue-700 rounded-full flex items-center justify-center">
+                      <ArrowUpRight className="h-5 w-5" />
+                    </div>
                     <span>Transfer</span>
                 </button>
                 <button className="flex items-center space-x-3 border border-white/30 text-white px-6 py-3 rounded-full text-base font-medium hover:bg-white/10 transition-colors min-w-max">
-                    <Plus className="h-5 w-5" />
+                    <div className="w-6 h-6 text-white bg-blue-700 rounded-full flex items-center justify-center">
+                      <Plus className="h-5 w-5" />
+                    </div>
                     <span>Add Money</span>
                 </button>
                 </div>
@@ -341,11 +338,15 @@ const Dashboard = () => {
                 <button
                  onClick={sendMoney}
                  className="flex items-center space-x-2 bg-white text-blue-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">
-                    <ArrowUpRight className="h-4 w-4" />
+                    <div className="w-6 h-6 text-white bg-blue-700 rounded-full flex items-center justify-center">
+                      <ArrowUpRight className="h-4 w-4" />
+                    </div>
                     <span>Transfer</span>
                 </button>
-                <button className="flex items-center space-x-2 border border-white/30 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
+                <button className="flex items-center space-x-2 border border-white text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
+                    <div className="w-6 h-6 text-white bg-blue-700 rounded-full flex items-center justify-center">
                     <Plus className="h-4 w-4" />
+                    </div>
                     <span>Add Money</span>
                 </button>
                 </div>
@@ -525,7 +526,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Stats Cards */}
+                {/* Stats Cards
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div className="flex items-center justify-between">
@@ -571,8 +572,9 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
+            <BottomNavigation />
         </div>
     )
 }
