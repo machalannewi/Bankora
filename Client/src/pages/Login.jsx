@@ -109,6 +109,7 @@ const Login = () => {
         }, 2000)
       } else {
         if (data.errors) {
+          console.log(data.errors)
           setErrors(data.errors)
         } else {
           setErrors({ 

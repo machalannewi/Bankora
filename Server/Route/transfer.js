@@ -1,5 +1,5 @@
 import express from "express";
-import pool from "../config/db.js"; // Import pool for database operations
+import pool from "../config/db.js";
 import findWalletByEmailOrPhone from "../Model/transfer.js"
 
 const router = express.Router();
@@ -70,7 +70,7 @@ router.post("/transactions/send", async (req, res) => {
 
    
     const transactionQuery = `
-      INSERT INTO transactions (sender_id, receiver_id, amount, status, note, sender_name, receiver_name created_at)
+      INSERT INTO transactions (sender_id, receiver_id, amount, status, note, sender_name, receiver_name, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
       RETURNING id, created_at
     `;
@@ -94,7 +94,7 @@ router.post("/transactions/send", async (req, res) => {
       // Emit to receiver's room
       io.to(receiverIdentifier).emit('transaction', {
         type: 'received',
-        message: `You received ${amount} from ${senderWallet.first_name} ${senderWallet.last_name}!`,
+        message: `You have received $${amount} from ${senderWallet.first_name} ${senderWallet.last_name}!`,
         amount: parseFloat(amount),
         newBalance: receiverWallet.balance,
         transactionId: transaction.id,
@@ -137,9 +137,65 @@ router.post("/transactions/send", async (req, res) => {
 });
 
 
+router.post("/fetch-user/:userId", async (req, res) => {
+  const userId = parseInt(req.params.userId)
+  console.log('User ID:', userId);
+  console.log('Request body:', req.body);
+  
+  const { receiverIdentifier } = req.body;
+  
+  if (!receiverIdentifier) {
+    return res.status(400).json({
+      success: false,
+      message: "Receiver identifier is required"
+    });
+  }
+  
+  try {
+    let query;
+    let params;
+    
+    // Check if receiverIdentifier is an email or phone number
+    if (receiverIdentifier.includes('@')) {
+      // It's an email
+      query = `SELECT first_name, last_name, email FROM users WHERE email = $1`;
+      params = [receiverIdentifier];
+    } else {
+      // It's a phone number
+      query = `SELECT first_name, last_name, phone FROM users WHERE phone = $1`;
+      params = [receiverIdentifier];
+    }
+    
+    const result = await pool.query(query, params);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
+    res.json({
+      success: true,
+      user: result.rows[0]
+    });
+    
+    console.log("Result:", result.rows);
+  } catch (error) {
+    console.error("Database Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Database Error",
+      error: error.message
+    });
+  }
+});
+
+
 
 router.get("/transactions/:userId", async (req, res) => {
   const userId = parseInt(req.params.userId);
+  console.log(userId);
 
   try {
     const result = await pool.query(

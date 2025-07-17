@@ -2,11 +2,19 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { Server } from "socket.io";
 import authRoute from "./Route/authRoute.js"
 import transfer from "./Route/transfer.js"
+import fetchUser from "./Route/transfer.js"
+import updateProfile from "./Route/updateProfile.js"
+import updateBalance from "./Route/updateBalance.js"
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 5000;
@@ -27,6 +35,7 @@ app.use(express.json())
 app.use(cors({
     origin: "http://localhost:5173"
 }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Make io available to routes
 app.set('io', io);
@@ -50,6 +59,9 @@ io.on("connection", (socket) => {
 
 app.use("/api", authRoute)
 app.use("/api", transfer)
+app.use("/api/user", fetchUser)
+app.use("/api/profile", updateProfile)
+app.use("/api/user", updateBalance)
 
 // Start server with Socket.IO
 server.listen(PORT, () => {

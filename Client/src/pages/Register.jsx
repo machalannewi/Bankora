@@ -136,7 +136,7 @@ function Register() {
         
         setTimeout(() => {
           console.log("Redirecting to login...");
-          navigate("/wallet")
+          navigate("/login")
         }, 2000);
       } else {
         if (data.errors) {

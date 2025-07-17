@@ -21,19 +21,20 @@ const validateLogin = (req, res, next) => {
     if(errors.isEmpty()){
         return next();
     }
-
+    
     const extractedErrors = errors.array().reduce((acc, err) => {
+        console.log('Error param:', err.param, 'Message:', err.msg);
         acc[err.param] = err.msg;
         return acc;
     }, {});
-
+    
+    console.log('Extracted errors:', extractedErrors);
+    
     return res.status(422).json({
         success: false,
-        message: extractedErrors.undefined,
-        errors: extractedErrors
+        message: "Validation failed",
+        errors: extractedErrors.undefined
     });
-
-
 }
 
 export {LoginValidationRules, validateLogin};

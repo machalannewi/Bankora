@@ -4,26 +4,29 @@ import { BellIcon } from '@heroicons/react/24/solid';
 import useUIStore from '@/stores/uiStore';
 
 const ProfileHeader = ({ user, time, handleLogOut, isLoading }) => {
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(user?.user.image || '');
+  const [profileImageFile, setProfileImageFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    fullName: user?.user.firstName + " " + user?.user.lastName || '',
+    firstName: user?.user.firstName || '',
+    lastName: user?.user.lastName || '',
     username: user?.user.username || '',
     mobile: user?.user.phone || '',
     email: user?.user.email || ''
   });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
   const fileInputRef = useRef(null);
-
-
 
   const { isEditProfileModalOpen, setEditProfileModalOpen } = useUIStore();
   
-   if (!user) return null;
-  
+  if (!user) return null;
 
   const handleProfileImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      // Store the file for upload
+      setProfileImageFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setProfileImage(e.target.result);
@@ -39,17 +42,93 @@ const ProfileHeader = ({ user, time, handleLogOut, isLoading }) => {
     }));
   };
 
-  const handleSaveProfile = () => {
-    // Here you would typically make an API call to update the profile
-    console.log('Saving profile data:', profileData);
-    setIsEditing(false);
-    // You can add your API call here
+  // const getImageUrl = (imagePath) => {
+  //   if (!imagePath) return null;
+    
+  //   // If it's a base64 string, return as is
+  //   if (imagePath.startsWith('data:')) {
+  //     return imagePath;
+  //   }
+    
+  //   // If it's a file path, construct the full URL
+  //   return `http://localhost:5000${imagePath}`;
+  // };
+
+  const handleSaveProfile = async () => {
+    setSuccessMessage("");
+    setIsUpdating(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('firstName', profileData.firstName);
+      formData.append('lastName', profileData.lastName);
+      formData.append('username', profileData.username);
+      formData.append('phone', profileData.mobile);
+      formData.append('email', profileData.email);
+
+      // Only append image if a new file was selected
+      if (profileImageFile) {
+        formData.append('image', profileImageFile);
+      }
+
+      console.log('Sending FormData with file:', profileImageFile?.name);
+
+      const res = await fetch(`http://localhost:5000/api/profile/update/${user?.user.id}`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Error response:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      // FIX: Add await here
+      const data = await res.json();
+      console.log('Response data:', data);
+
+      if (data.success) {
+        setIsEditing(false);
+        setSuccessMessage("Profile has been updated successfully");
+        
+        // Update the local state with the new data
+        setProfileData({
+          firstName: data.user.first_name || '',
+          lastName: data.user.last_name || '',
+          username: data.user.username || '',
+          mobile: data.user.phone || '',
+          email: data.user.email || ''
+        });
+
+        // Update the profile image if it was changed
+        if (data.user.image) {
+          setProfileImage(data.user.image);
+        }
+
+        // Clear the file input
+        setProfileImageFile(null);
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } else {
+        console.error('Update failed:', data);
+      }
+
+    } catch (error) {
+      console.error(error, "Error updating Profile");
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const getInitials = (name) => {
     if (!name) return 'W';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
+
+  // // Get the current profile image URL
+  // const currentImageUrl = getImageUrl(profileImage);
 
   return (
     <>
@@ -66,7 +145,7 @@ const ProfileHeader = ({ user, time, handleLogOut, isLoading }) => {
                   />
                 ) : (
                   <span className="text-white font-bold text-lg">
-                    {getInitials(profileData.fullName || profileData.username)}
+                    {getInitials(profileData.firstName || profileData.username)}
                   </span>
                 )}
               </button>
@@ -125,7 +204,7 @@ const ProfileHeader = ({ user, time, handleLogOut, isLoading }) => {
                       />
                     ) : (
                       <span className="text-white font-bold text-2xl">
-                        {getInitials(profileData.fullName || profileData.username)}
+                        {getInitials(profileData.firstName || profileData.username)}
                       </span>
                     )}
                   </div>
@@ -164,22 +243,41 @@ const ProfileHeader = ({ user, time, handleLogOut, isLoading }) => {
                   </button>
                 </div>
 
-                {/* Full Name */}
+                {/* First Name */}
                 <div className="space-y-2">
                   <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
                     <User size={16} />
-                    <span>Full Name</span>
+                    <span>First Name</span>
                   </label>
                   {isEditing ? (
                     <input
                       type="text"
-                      value={profileData.fullName}
-                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      value={profileData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter your full name"
+                      placeholder="Enter your first name"
                     />
                   ) : (
-                    <p className="text-gray-900 py-2">{profileData.fullName || 'Not set'}</p>
+                    <p className="text-gray-900 py-2">{profileData.firstName || 'Not set'}</p>
+                  )}
+                </div>
+
+                {/* Last Name */}
+                <div className="space-y-2">
+                  <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                    <User size={16} />
+                    <span>Last Name</span>
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={profileData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter your last name"
+                    />
+                  ) : (
+                    <p className="text-gray-900 py-2">{profileData.lastName || 'Not set'}</p>
                   )}
                 </div>
 
@@ -241,14 +339,22 @@ const ProfileHeader = ({ user, time, handleLogOut, isLoading }) => {
                 </div>
               </div>
 
+              {/* Success Message */}
+              {successMessage && (
+                <div className="bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-md">
+                  {successMessage}
+                </div>
+              )}
+
               {/* Save Button */}
               {isEditing && (
                 <div className="flex space-x-3">
                   <button
                     onClick={handleSaveProfile}
-                    className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors font-medium"
+                    disabled={isUpdating}
+                    className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Save Changes
+                    {isUpdating ? "Updating..." : "Save Changes"}
                   </button>
                   <button
                     onClick={() => setIsEditing(false)}

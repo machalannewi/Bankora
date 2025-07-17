@@ -9,8 +9,6 @@ import TransferMoney from "./pages/dashboard/TransferMoney"
 
 function App() {
 
-
-
   const location = useLocation();
   return (
     <>

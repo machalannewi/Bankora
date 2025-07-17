@@ -1,9 +1,13 @@
-import { useLocation, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
 import axios from "axios";
+import "../../global.css"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import BottomNavigation from "./BottomNavigation"
 import ProfileHeader from "./Header"
-import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send } from "lucide-react"
+import SavingBanner from "./SavingBanner"
+import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send, RefreshCw } from "lucide-react"
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
 import {
@@ -17,28 +21,22 @@ const Dashboard = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [balance, setBalance] = useState(0)
     const [notifications, setNotifications] = useState([])
+    const [notificationPopUp, setNotificationPopUp] = useState("");
     const [isConnected, setIsConnected] = useState(false)
     const [time, setTime] = useState(new Date())
     const [showBalance, setShowBalance] = useState(true);
     const [transactions, setTransactions] = useState([]);
     const [showAll, setShowAll] = useState(false)
-
-
-    
-
-
+    const [copySuccess, setCopySuccess] = useState("");
     
     
-    // const location = useLocation()
     const navigate = useNavigate()
     const socketRef = useRef(null)
+    const copyRef = useRef(null)
     const user = useUserStore((state) => state.user)
     const cancelUser = useUserStore((state) => state.cancelUser);
     const clearStorage = useUserStore((state) => state.clearStorage);
-    
-    // const username = location.state?.userName || "Guest"
-    // const initialBalance = location.state?.balance || "0.00"
-    // const userEmail = location.state?.userEmail
+    const { userBalance, syncBalance } = useUserStore();
 
     // Initialize socket connection and fetch balance
     useEffect(() => {
@@ -56,6 +54,7 @@ const Dashboard = () => {
                 setIsConnected(true)
                 // Join user's room
                 socketRef.current.emit('join', user?.user.email)
+                socketRef.current.emit('join', user?.user.phone)
             })
 
             socketRef.current.on('disconnect', () => {
@@ -63,24 +62,22 @@ const Dashboard = () => {
                 setIsConnected(false)
             })
 
-            // Listen for balance updates
-            socketRef.current.on('balanceUpdate', (data) => {
-                console.log('Balance update received:', data)
-                setBalance(data.newBalance)
-                
-                // Add notification
-                setNotifications(prev => [{
-                    id: Date.now(),
-                    message: data.message,
-                    type: data.type,
-                    timestamp: new Date().toLocaleString()
-                }, ...prev.slice(0, 4)]) // Keep only last 5 notifications
-            })
-
             // Listen for transaction notifications
             socketRef.current.on('transaction', (data) => {
                 console.log('Transaction notification:', data)
                 setBalance(data.newBalance)
+
+                console.log(data.message);
+
+                toast.success(data.message, {
+                    position: "top-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: false,
+                    progress: undefined,
+                })
                 
                 setNotifications(prev => [{
                     id: Date.now(),
@@ -100,7 +97,7 @@ const Dashboard = () => {
                 }
             }
         }
-    }, [user?.user.email, user?.user.balance])
+    }, [user?.user.email, user?.user.phone, user?.user.balance])
 
 
     useEffect(() => {
@@ -120,11 +117,6 @@ const Dashboard = () => {
     }, [user?.user.id]);
 
     console.log(transactions)
-
-
-    // const isCredit = transactions.receiver_id === user?.user.id;
-    // const name = isCredit ? transactions.sender_name : transactions.receiver_name;
-
 
 
   const formatDateTime = (dateString) => {
@@ -156,12 +148,11 @@ const Dashboard = () => {
     // Fetch balance from server
     const fetchBalance = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/user/balance', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            })
+            const response = await fetch(`http://localhost:5000/api/user/balance/${user?.user.id}`)
             const data = await response.json()
+
+            console.log(data);
+
             if (data.success) {
                 setBalance(data.balance)
             }
@@ -173,6 +164,19 @@ const Dashboard = () => {
     // Manual refresh balance
     const refreshBalance = () => {
         fetchBalance()
+    }
+
+    const copyToClipboard = async copyText => {
+        try {
+            await navigator.clipboard.writeText(copyText)
+            setCopySuccess("Copied")
+            setTimeout(() => {
+            setCopySuccess("")
+            }, 2000)
+        } catch (error) {
+            setCopySuccess("Failed to Copy")
+            console.error(error.message)
+        }
     }
 
     // Handle logout
@@ -198,8 +202,7 @@ const Dashboard = () => {
 
     // Navigate to transfer page
     function sendMoney() {
-        console.log(time)
-        navigate("/transfer")
+        navigate("/transfer", {state: {userBalance: user?.user.balance}})
     }
 
     // Clear notification
@@ -213,8 +216,9 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 font-voyage">
             {/* Header */}
+            <ToastContainer />
             <ProfileHeader user={user} handleLogOut={() => handleLogOut()} isLoading={isLoading} time={time}/>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -237,16 +241,24 @@ const Dashboard = () => {
                     </button>
                 </div>
                 <div className="mb-6">
-                    <h2 className="text-5xl lg:text-6xl font-bold text-white mb-2">
-                    {showBalance ? "$" + balance.toFixed(2, 0) : '••••••••'}
-                    </h2>
+                    <div className="flex items-center gap-2">
+                        <h2 className="text-5xl lg:text-6xl font-bold text-white mb-2">
+                        {showBalance ? "$" + balance.toFixed(2) : '••••••••'}
+                        </h2>
+                        <RefreshCw 
+                        onClick={refreshBalance}
+                        className="h-8 w-8"/>
+                    </div>
                     <div>
                     <p className="text-white/70 text-sm mb-1">Account details</p>
                     <div className="flex items-center space-x-2">
                         <span className="text-white/90 text-base">
                         {user?.user.firstName} {user?.user.lastName} ({user?.user.phone})
                         </span>
-                        <Copy className="h-4 w-4 text-white/70 cursor-pointer hover:text-white transition-colors" />
+                        <Copy className="h-4 w-4 text-white/70 cursor-pointer hover:text-white transition-colors" 
+                        onClick={() => copyToClipboard(user?.user.phone)}
+                        />
+                        <span>{copySuccess}</span>
                     </div>
                     </div>
                 </div>
@@ -288,10 +300,13 @@ const Dashboard = () => {
                 </div>
 
                 {/* Balance Amount */}
-                <div className="mb-4">
-                <h2 className="text-3xl font-bold text-white">
-                    {showBalance ? "$" + balance.toFixed(2, 0) : '••••••••'}
-                </h2>
+                <div className="mb-4 flex items-center gap-1">
+                    <h2 className="text-3xl font-bold text-white">
+                        {showBalance ? "$" + balance.toFixed(2, 0) : '••••••••'}
+                    </h2>
+                    <RefreshCw 
+                    onClick={refreshBalance}
+                    className="w-4 h-4"/>
                 </div>
 
                 {/* Account Details */}
@@ -301,7 +316,10 @@ const Dashboard = () => {
                     <span className="text-white/90 text-sm">
                     {user?.user.firstName} {user?.user.lastName} ({user?.user.phone})
                     </span>
-                    <Copy className="h-3 w-3 text-white/70 cursor-pointer hover:text-white transition-colors" />
+                    <Copy className="h-3 w-3 text-white/70 cursor-pointer hover:text-white transition-colors" 
+                    onClick={() => copyToClipboard(user?.user.phone)}
+                    />
+                    <span className="text-sm">{copySuccess}</span>
                 </div>
                 </div>
 
@@ -385,6 +403,10 @@ const Dashboard = () => {
 
                 </div>
 
+
+                <SavingBanner />
+
+
                 {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Recent Transactions */}
@@ -400,7 +422,10 @@ const Dashboard = () => {
 
                     <div className="space-y-4">
                     {(showAll ? transactions : transactions.slice(0, 3)).map((transaction) => {
-                        const isCredit = transaction.receiver_id === user?.user.id;
+                        console.log(transaction.receiver_id, typeof transaction.receiver_id);
+                        console.log(user?.user.id, typeof user?.user.id);
+                        const isCredit = String(transaction.receiver_id) === String(user?.user.id);
+                        console.log(isCredit)
                         const name = isCredit ? transaction.sender_name : transaction.receiver_name;
 
                         return (

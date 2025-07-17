@@ -1,62 +1,91 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useLocation, Link } from "react-router-dom"
 import { ArrowLeft, Send, User, DollarSign, CheckCircle, AlertCircle, Eye, EyeOff } from "lucide-react"
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
 
 const TransferMoney = () => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isTransferLoading, setIsTransferLoading] = useState(false) // Separate loading for transfer
+  const [isUserSearchLoading, setIsUserSearchLoading] = useState(false) // Separate loading for user search
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [balance, setBalance] = useState(0);
   const [socket, setSocket] = useState(null);
   const [showBalance, setShowBalance] = useState(true);
+  const [fetchUser, setFetchUser] = useState("");
   const [transferData, setTransferData] = useState({
     receiverIdentifier: "",
     amount: ""
   })
- 
-  // const location = useLocation()
-  // const email = location.state?.userEmail
-  // const initialBalance = location.state?.currentBalance
 
   const user = useUserStore((state) => state.user)
 
-  // Initialize socket connection and fetch initial balance
-  useEffect(() => {
-    if (user?.user.email) {
-      // Set initial balance
-      setBalance(parseFloat(user?.user.balance))
-
-      // Initialize socket
-      const newSocket = io('http://localhost:5000');
-      setSocket(newSocket);
-      // Join user's room
-      newSocket.emit('join', user?.user.email);
-      // Listen for balance updates
-      newSocket.on('balanceUpdate', (data) => {
-        setBalance(data.newBalance);
-        if (data.type === 'credit') {
-          setSuccess(data.message);
-          setTimeout(() => setSuccess(''), 5000);
+  // Debounced function to fetch user
+  const debouncedFetchUser = useCallback(
+    debounce(async (value) => {
+      setIsUserSearchLoading(true);
+      setError(''); // Clear previous errors
+      
+      try {
+        const res = await fetch(`http://localhost:5000/api/user/fetch-user/${user?.user.id}`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            receiverIdentifier: value.trim()
+          })
+        })
+        
+        const data = await res.json();
+        console.log('API Response:', data);
+        
+        if (res.ok && data.success) {
+          const userFullName = data.user.first_name + " " + data.user.last_name
+          setFetchUser(userFullName);
+        } else {
+          setFetchUser(""); // Clear user if not found
+          if (data.message) {
+            setError(data.message);
+          }
         }
-      });
-      // Cleanup on unmount
-      return () => {
-        newSocket.disconnect();
-      };
-    }
-  }, [user?.user.email, user?.user.balance]);
+      } catch (error) {
+        console.error('Fetch error:', error);
+        setError("Error fetching user: " + error.message);
+        setFetchUser(""); // Clear user on error
+      } finally {
+        setIsUserSearchLoading(false);
+      }
+    }, 500), // Wait 500ms after user stops typing
+    [user?.user.id] // Dependencies
+  );
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     const { name, value } = e.target
     setTransferData({ ...transferData, [name]: value })
+   
+    // Only fetch user when typing in the receiverIdentifier field and has some value
+    if (name === 'receiverIdentifier' && value.trim()) {
+      debouncedFetchUser(value);
+    } else if (name === 'receiverIdentifier' && !value.trim()) {
+      // Clear the fetched user when input is empty
+      setFetchUser("");
+      setError(''); // Clear errors
+      setIsUserSearchLoading(false); // Stop loading
+    }
   }
 
-  // Transfer money function
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedFetchUser.cancel?.();
+    }
+  }, [debouncedFetchUser]);
+
+ // Transfer money function
   const handleTransfer = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsTransferLoading(true);
     setError('');
     setSuccess('');
     try {
@@ -77,6 +106,8 @@ const TransferMoney = () => {
         setSuccess('Transfer successful!');
         setBalance(data.transaction.senderNewBalance);
         setTransferData({ receiverIdentifier: '', amount: '' });
+        setFetchUser(''); // Clear fetched user after successful transfer
+        setTimeout(() => setSuccess(""), 5000)
       } else {
         setError(data.message || 'Transfer failed');
       }
@@ -84,7 +115,7 @@ const TransferMoney = () => {
       setError('Network error. Please try again.');
       console.error('Transfer error:', err);
     } finally {
-      setIsLoading(false);
+      setIsTransferLoading(false);
     }
   };
 
@@ -95,7 +126,11 @@ const TransferMoney = () => {
     }).format(amount);
   };
 
-  const isFormValid = transferData.receiverIdentifier.trim() && transferData.amount && parseFloat(transferData.amount) > 0;
+  // Improved form validation
+  const isFormValid = transferData.receiverIdentifier.trim() && 
+                     transferData.amount && 
+                     parseFloat(transferData.amount) > 0 && 
+                     fetchUser; // Only valid if user is found
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -113,22 +148,6 @@ const TransferMoney = () => {
       </div>
 
       <div className="max-w-md mx-auto px-4 py-6">
-        {/* Balance Card */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white mb-6 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-blue-100 text-sm font-medium">Available Balance</span>
-            <button 
-              onClick={() => setShowBalance(!showBalance)}
-              className="p-1 hover:bg-white/10 rounded-full transition-colors"
-            >
-              {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          <div className="text-3xl font-bold">
-            {showBalance ? formatBalance(balance) : '••••••'}
-          </div>
-        </div>
-
         {/* Transfer Form */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex items-center gap-3 mb-6">
@@ -160,6 +179,25 @@ const TransferMoney = () => {
                   placeholder="Enter email or phone number"
                 />
               </div>
+              {/* Loading state for user search */}
+              {isUserSearchLoading && (
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm text-gray-500">Searching for user...</span>
+                </div>
+              )}
+              
+              {/* Display found user */}
+              {fetchUser && !isUserSearchLoading && (
+                <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <p className="text-green-800 text-sm font-medium">
+                      Recipient: {fetchUser}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Amount Field */}
@@ -206,14 +244,14 @@ const TransferMoney = () => {
             {/* Transfer Button */}
             <button
               type="submit"
-              disabled={isLoading || !isFormValid}
+              disabled={isTransferLoading || !isFormValid}
               className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2 ${
-                isLoading || !isFormValid
+                isTransferLoading || !isFormValid
                   ? 'bg-gray-300 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 active:scale-95 shadow-lg hover:shadow-xl'
               }`}
             >
-              {isLoading ? (
+              {isTransferLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   Sending...
@@ -247,7 +285,7 @@ const TransferMoney = () => {
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-600" />
               <div>
-                <p className="text-red-800 font-medium">Transfer Failed</p>
+                <p className="text-red-800 font-medium">Error</p>
                 <p className="text-red-600 text-sm">{error}</p>
               </div>
             </div>
@@ -271,6 +309,25 @@ const TransferMoney = () => {
       </div>
     </div>
   )
+}
+
+// Simple debounce function (if you don't have lodash)
+function debounce(func, wait) {
+  let timeout;
+  const debounced = function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+  
+  debounced.cancel = () => {
+    clearTimeout(timeout);
+  };
+  
+  return debounced;
 }
 
 export default TransferMoney
