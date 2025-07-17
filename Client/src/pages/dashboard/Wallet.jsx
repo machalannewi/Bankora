@@ -10,6 +10,7 @@ import SavingBanner from "./SavingBanner"
 import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send, RefreshCw } from "lucide-react"
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
+import { useNotifications } from "@/contexts/NotificationContext"
 import {
   PhoneIcon,
   SignalIcon,
@@ -20,23 +21,24 @@ import {
 const Dashboard = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [balance, setBalance] = useState(0)
-    const [notifications, setNotifications] = useState([])
-    const [notificationPopUp, setNotificationPopUp] = useState("");
+    // const [notifications, setNotifications] = useState([])
+    const [bellNotifications, setBellNotifications] = useState([])
     const [isConnected, setIsConnected] = useState(false)
     const [time, setTime] = useState(new Date())
     const [showBalance, setShowBalance] = useState(true);
     const [transactions, setTransactions] = useState([]);
     const [showAll, setShowAll] = useState(false)
     const [copySuccess, setCopySuccess] = useState("");
+    const { notifications, unreadCount, addNotification } = useNotifications();
     
     
     const navigate = useNavigate()
     const socketRef = useRef(null)
-    const copyRef = useRef(null)
     const user = useUserStore((state) => state.user)
     const cancelUser = useUserStore((state) => state.cancelUser);
     const clearStorage = useUserStore((state) => state.clearStorage);
-    const { userBalance, syncBalance } = useUserStore();
+
+
 
     // Initialize socket connection and fetch balance
     useEffect(() => {
@@ -69,6 +71,17 @@ const Dashboard = () => {
 
                 console.log(data.message);
 
+                // const newNotification = {
+                //     id: Date.now(),
+                //     message: data.message,
+                //     type: data.type || 'info',
+                //     timestamp: new Date().toLocaleString(),
+                //     read: false // Add read status
+                // };
+
+                // setBellNotifications(prev => [newNotification, ...prev.slice(0, 4)])
+                // setUnreadCount(prev => prev + 1); // Increment unread count
+
                 toast.success(data.message, {
                     position: "top-left",
                     autoClose: 5000,
@@ -79,12 +92,16 @@ const Dashboard = () => {
                     progress: undefined,
                 })
                 
-                setNotifications(prev => [{
-                    id: Date.now(),
-                    message: data.message,
-                    type: data.type || 'info',
-                    timestamp: new Date().toLocaleString()
-                }, ...prev.slice(0, 4)])
+                // setNotifications(prev => [{
+                //     id: Date.now(),
+                //     message: data.message,
+                //     type: data.type || 'info',
+                //     timestamp: new Date().toLocaleString(),
+                // }, ...prev.slice(0, 4)])
+                addNotification({
+                message: data.message,
+                type: data.type || 'info'
+                });
             })
 
             // Fetch latest balance on component mount
@@ -99,6 +116,12 @@ const Dashboard = () => {
         }
     }, [user?.user.email, user?.user.phone, user?.user.balance])
 
+      const handleBellClick = () => {
+        // Mark all notifications as read
+        setBellNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+        navigate("/notification")
+        setUnreadCount(0);
+    };
 
     useEffect(() => {
         if(!user?.user) {
@@ -142,8 +165,6 @@ const Dashboard = () => {
   
   return `${ordinal} ${month}, ${year} | ${time}`;
 };
-
-
 
     // Fetch balance from server
     const fetchBalance = async () => {
@@ -202,7 +223,7 @@ const Dashboard = () => {
 
     // Navigate to transfer page
     function sendMoney() {
-        navigate("/transfer", {state: {userBalance: user?.user.balance}})
+        navigate("/transfer")
     }
 
     // Clear notification
@@ -219,7 +240,7 @@ const Dashboard = () => {
         <div className="min-h-screen bg-gray-50 font-voyage">
             {/* Header */}
             <ToastContainer />
-            <ProfileHeader user={user} handleLogOut={() => handleLogOut()} isLoading={isLoading} time={time}/>
+            <ProfileHeader user={user} notificationCount={unreadCount} onBellClick={handleBellClick} handleLogOut={() => handleLogOut()} isLoading={isLoading} time={time}/>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Main Balance Card */}

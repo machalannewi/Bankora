@@ -5,6 +5,9 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Dashboard from "./pages/dashboard/Wallet"
 import TransferMoney from "./pages/dashboard/TransferMoney"
+import Notifications from "./pages/dashboard/Notifications"
+import { useNotifications } from "./contexts/NotificationContext";
+
 
 
 function App() {
@@ -18,11 +21,24 @@ function App() {
       <Route path="/register" element={<Register/>}/>
       <Route path="/wallet" element={<Dashboard/>}/>
       <Route path="/transfer" element={<TransferMoney/>}/>
+      <Route path="/notification" element={<NotificationsPage/>}/>
     </Routes>
-
     </>
   )
 }
+
+// Wrapper component to pass props to Notifications
+const NotificationsPage = () => {
+  const { notifications, markAllAsRead, markAsRead } = useNotifications();
+  
+  return (
+    <Notifications 
+      notifications={notifications}
+      markAllAsRead={markAllAsRead}
+      markAsRead={markAsRead}
+    />
+  );
+};
 
 export default App
 
