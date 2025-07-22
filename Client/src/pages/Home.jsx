@@ -7,21 +7,27 @@ import SecuritySection from "@/components/security/SecuritySection"
 import AppPreview from "@/components/app-preview/AppPreview"
 import CallToAction from "@/components/cta/CallToAction"
 import Footer from "@/components/footer/Footer"
+import PartnersSection from "@/components/partner/Partner"
+import "@/global.css"
 
 
 export default function Home() {
 
   return (
     <>
-    <Navbar />
-    <Hero />
-    <HowItWorks />
-    <Service />
-    <Testimonial />
-    <SecuritySection />
-    <AppPreview />
-    <CallToAction />
-    <Footer />
+    <div className="font-voyage">
+      <Navbar />
+      <Hero />
+      <PartnersSection />
+      <HowItWorks />
+      <AppPreview />
+      <Service />
+      <Testimonial />
+      <SecuritySection />
+      <CallToAction />
+      <Footer />
+    </div>
+
 
     </>
 

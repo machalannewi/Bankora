@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import "keen-slider/keen-slider.min.css";
 
 const screenshots = [
-  "/assets/Screenshot 2025-07-06 001538.png",
-  "/assets/Screenshot 2025-07-06 001558.png",
-  "/assets/Screenshot 2025-07-06 001538.png",
+  "/assets/visit-website.png",
+  "/assets/create-account.png",
+  "/assets/login.png",
+  "/assets/user-dashboard.png",
 ];
 
 export default function AppPreview() {
@@ -14,9 +15,18 @@ export default function AppPreview() {
 
   const [sliderRef, instanceRef] = useKeenSlider({
     loop: true,
-    slides: { perView: 1, spacing: 16 },
+    slides: { 
+      perView: 1, 
+      spacing: 0  // Remove spacing to prevent gaps
+    },
+    // Remove the breakpoint that was causing 1.1 slides to show
     breakpoints: {
-      "(min-width: 768px)": { slides: { perView: 1.1 } },
+      "(min-width: 768px)": { 
+        slides: { 
+          perView: 1,  // Keep exactly 1 slide visible
+          spacing: 0 
+        } 
+      },
     },
   });
 
@@ -35,7 +45,7 @@ export default function AppPreview() {
 
   return (
     <section className="py-24 bg-black text-white relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4 text-center">
+      <div className="max-w-6xl mx-auto px-4 text-center items-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
           Your Wallet in Your Pocket
         </h2>
@@ -43,23 +53,48 @@ export default function AppPreview() {
           Manage your money, send and receive funds, and view history — all from your phone.
         </p>
 
-        {/* 📱 Phone mockup + carousel */}
+        {/* 📱 iOS Phone mockup + carousel */}
         <div className="flex justify-center items-center mb-16">
-          <div className="w-[300px] md:w-[350px] aspect-[9/19] bg-gray-900 border-8 border-gray-700 rounded-3xl shadow-xl overflow-hidden relative">
-            <div ref={sliderRef} className="keen-slider h-full">
-              {screenshots.map((src, index) => (
-                <div key={index} className="keen-slider__slide flex justify-center items-center bg-black">
-                  <img src={src} alt={`App screen ${index + 1}`} className="h-full object-cover" />
+          <div className="relative w-[320px] md:w-[350px]">
+            {/* Phone frame */}
+            <div className="bg-black rounded-[3rem] p-2 shadow-2xl relative mx-auto">
+              {/* Screen */}
+              <div className="bg-black rounded-[2.5rem] overflow-hidden relative">
+                {/* Dynamic Island */}
+                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-black rounded-full z-20"></div>
+                
+                {/* Screen content container with fixed dimensions */}
+                <div className="relative w-full h-[600px] md:h-[600px] overflow-hidden rounded-[2.3rem]">
+                  <div ref={sliderRef} className="keen-slider w-full h-full">
+                    {screenshots.map((src, index) => (
+                      <div key={index} className="keen-slider__slide w-full h-full flex items-center justify-center bg-black">
+                        <img 
+                          src={src} 
+                          alt={`App screen ${index + 1}`} 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+                
+                {/* Home indicator */}
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white rounded-full opacity-60 z-20"></div>
+              </div>
             </div>
+            
+            {/* Side buttons */}
+            <div className="absolute left-[-3px] top-20 w-1 h-12 bg-gray-800 rounded-l-lg"></div>
+            <div className="absolute left-[-3px] top-36 w-1 h-16 bg-gray-800 rounded-l-lg"></div>
+            <div className="absolute left-[-3px] top-56 w-1 h-16 bg-gray-800 rounded-l-lg"></div>
+            <div className="absolute right-[-3px] top-48 w-1 h-20 bg-gray-800 rounded-r-lg"></div>
           </div>
         </div>
 
         {/* 🎥 Video demo */}
         <div className="relative mx-auto w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl border border-gray-700 mb-10">
           <video
-            src="/assets/demo.mp4"
+            src="/assets/app-recording.mp4"
             autoPlay
             muted
             loop
@@ -70,12 +105,13 @@ export default function AppPreview() {
         </div>
 
         {/* 🚀 CTA Button */}
-        <div className="mt-6">
+        <div className="mt-6 flex justify-center">          
           <a
             href="#"
-            className="inline-block bg-green-500 text-black font-semibold px-6 py-3 rounded-full text-sm md:text-base hover:bg-green-400 transition duration-300 shadow-md hover:shadow-lg"
+            className="flex justify-center items-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-full text-sm md:text-base transition duration-300 shadow-md hover:shadow-lg"
           >
-            Download the App / Join Now
+            <img className="w-6 h-6" src="/assets/apple.png" alt="appleIcon" />
+            <span>Download the App / Join Now</span>
           </a>
         </div>
       </div>

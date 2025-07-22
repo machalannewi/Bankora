@@ -2,8 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
 import axios from "axios";
 import "../../global.css"
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 import BottomNavigation from "./BottomNavigation"
 import ProfileHeader from "./Header"
 import SavingBanner from "./SavingBanner"
@@ -29,7 +28,7 @@ const Dashboard = () => {
     const [transactions, setTransactions] = useState([]);
     const [showAll, setShowAll] = useState(false)
     const [copySuccess, setCopySuccess] = useState("");
-    const { notifications, unreadCount, addNotification } = useNotifications();
+    const { notifications, unreadCount, addNotification, clearNotification, clearAllNotifications } = useNotifications();
     
     
     const navigate = useNavigate()
@@ -71,17 +70,6 @@ const Dashboard = () => {
 
                 console.log(data.message);
 
-                // const newNotification = {
-                //     id: Date.now(),
-                //     message: data.message,
-                //     type: data.type || 'info',
-                //     timestamp: new Date().toLocaleString(),
-                //     read: false // Add read status
-                // };
-
-                // setBellNotifications(prev => [newNotification, ...prev.slice(0, 4)])
-                // setUnreadCount(prev => prev + 1); // Increment unread count
-
                 toast.success(data.message, {
                     position: "top-left",
                     autoClose: 5000,
@@ -92,12 +80,6 @@ const Dashboard = () => {
                     progress: undefined,
                 })
                 
-                // setNotifications(prev => [{
-                //     id: Date.now(),
-                //     message: data.message,
-                //     type: data.type || 'info',
-                //     timestamp: new Date().toLocaleString(),
-                // }, ...prev.slice(0, 4)])
                 addNotification({
                 message: data.message,
                 type: data.type || 'info'
@@ -115,12 +97,12 @@ const Dashboard = () => {
             }
         }
     }, [user?.user.email, user?.user.phone, user?.user.balance])
+    
 
       const handleBellClick = () => {
         // Mark all notifications as read
         setBellNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
         navigate("/notification")
-        setUnreadCount(0);
     };
 
     useEffect(() => {
@@ -214,6 +196,7 @@ const Dashboard = () => {
 
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("user");
+        toast.success("Logged out successfully!")
         setTimeout(() => {
             cancelUser()
             clearStorage()
@@ -227,19 +210,18 @@ const Dashboard = () => {
     }
 
     // Clear notification
-    const clearNotification = (id) => {
-        setNotifications(prev => prev.filter(notif => notif.id !== id))
-    }
+    // const clearNotification = (id) => {
+    //     setNotifications(prev => prev.filter(notif => notif.id !== id))
+    // }
 
-    // Clear all notifications
-    const clearAllNotifications = () => {
-        setNotifications([])
-    }
+    // // Clear all notifications
+    // const clearAllNotifications = () => {
+    //     () => clearNotifications()
+    // }
 
     return (
         <div className="min-h-screen bg-gray-50 font-voyage">
             {/* Header */}
-            <ToastContainer />
             <ProfileHeader user={user} notificationCount={unreadCount} onBellClick={handleBellClick} handleLogOut={() => handleLogOut()} isLoading={isLoading} time={time}/>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

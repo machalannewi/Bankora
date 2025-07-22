@@ -7,19 +7,20 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 
 const navigation = [
+  { name: 'Home', href: '#' },
   { name: 'Features', href: '#' },
   { name: 'About', href: '#' },
   { name: 'How It Works', href: '#' },
-  { name: 'Contact', href: '#' },
 ]
 
 function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("Home");
 
   return (
 
      <header className="fixed inset-x-0 top-0 z-50 h-20 bg-white">
-        <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+        <nav aria-label="Global" className="flex items-center justify-between p-4 lg:px-8">
           <div className="flex lg:flex-1">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Bankora</span>
@@ -40,12 +41,25 @@ function Navbar() {
               <Bars3Icon aria-hidden="true" className="size-6" />
             </button>
           </div>
-          <div className="hidden lg:flex lg:gap-x-12">
-            {navigation.map((item) => (
-              <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-gray-900">
+          <div className="hidden lg:flex lg:gap-x-4 border-1 p-2 rounded-lg h-14">
+            {navigation.map((item) => {
+              const isActive = activeTab === item.name;
+
+              return(
+              <a 
+              key={item.name}
+              onClick={() => setActiveTab(item.name)} 
+              href={item.href} 
+              className="text-sm/6 font-semibold text-gray-900">
+
+              <div className={`h-10 px-3 flex items-center rounded-md transition-colors duration-200 ${
+                  isActive && 'bg-gray-200' 
+                }`}>
                 {item.name}
+                </div>
               </a>
-            ))}
+              )
+            })}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-2">
             <Link to="/login" className="text-sm/6 font-semibold text-white bg-black px-5 py-2 rounded-md">

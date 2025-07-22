@@ -6,7 +6,9 @@ import Register from "./pages/Register"
 import Dashboard from "./pages/dashboard/Wallet"
 import TransferMoney from "./pages/dashboard/TransferMoney"
 import Notifications from "./pages/dashboard/Notifications"
+import Transaction from "./pages/dashboard/Transactions"
 import { useNotifications } from "./contexts/NotificationContext";
+import { Toaster } from "@/components/ui/sonner"
 
 
 
@@ -21,8 +23,10 @@ function App() {
       <Route path="/register" element={<Register/>}/>
       <Route path="/wallet" element={<Dashboard/>}/>
       <Route path="/transfer" element={<TransferMoney/>}/>
+      <Route path="/transactions" element={<Transaction />}/>
       <Route path="/notification" element={<NotificationsPage/>}/>
     </Routes>
+    <Toaster />
     </>
   )
 }

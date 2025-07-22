@@ -1,4 +1,6 @@
-import { useState } from "react"
+"use client"
+
+import { useState, useEffect} from "react"
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -7,6 +9,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import useUserStore from "@/stores/userStore"
+import { toast } from "sonner"
+
+
 
 
 const Login = () => {
@@ -63,6 +68,7 @@ const Login = () => {
     return Object.keys(newErrors).length === 0
   }
 
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -71,6 +77,7 @@ const Login = () => {
     setIsLoading(true)
     setErrors({})
     setSuccessMessage("")
+    
 
     try {
       const { rememberMe, ...loginData } = formData
@@ -94,6 +101,8 @@ const Login = () => {
           sessionStorage.setItem("token", data.token)
           sessionStorage.setItem("user", JSON.stringify(data.user))
         }
+
+        toast.success("Login successful!")
         
         setSuccessMessage(`Welcome back, ${data.user.username || data.user.firstName}! Redirecting to your wallet...`)
         
@@ -106,14 +115,15 @@ const Login = () => {
         setTimeout(() => {
           setUser(data)
           navigate("/wallet")
-        }, 2000)
+        }, 3000)
       } else {
         if (data.errors) {
           console.log(data.errors)
           setErrors(data.errors)
+          toast.error("Login failed!")
         } else {
           setErrors({ 
-            general: data.message || "Login failed. Please check your credentials and try again." 
+            general: data.message || "Login failed. Please check your credentials and try again."
           })
         }
       }
@@ -137,7 +147,7 @@ const Login = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex">
+    <div className="font-voyage min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex">
      {/* Left side - Image */}
       <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-teal-600/20 z-10"></div>
@@ -186,7 +196,7 @@ const Login = () => {
               Email Address
             </Label>
             <div className="relative mt-2">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <Input
                 type="email"
                 id="email"
@@ -208,7 +218,7 @@ const Login = () => {
               Password
             </Label>
             <div className="relative mt-2">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <Input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -225,7 +235,7 @@ const Login = () => {
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                 disabled={isLoading}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="text-purple-400 w-5 h-5" /> : <Eye className="text-purple-400 w-5 h-5" />}
               </button>
             </div>
             {errors.password && (

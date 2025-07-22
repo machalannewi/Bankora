@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import "../../global.css"
+import { ShoppingCart } from "lucide-react"
 
 
 const Hero = () => {
@@ -20,36 +21,34 @@ const Hero = () => {
         </div>
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-            <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-              Annoucing a new feature for easy transfer.{' '}
-              <a href="#" className="font-semibold text-indigo-600">
-                <span aria-hidden="true" className="absolute inset-0" />
-                Read more <span aria-hidden="true">&rarr;</span>
-              </a>
+            <div className="flex items-center gap-3 rounded-full px-4 h-7 text-sm text-gray-600 bg-white/80 backdrop-blur-sm ring-1 ring-gray-900/10 hover:ring-gray-900/20 shadow-sm transition-all duration-200">
+              <img className="h-10 w-10 rounded-full object-cover" src="/assets/hero-image.png" alt="Trusted users" />
+              <span className="font-medium">Trusted by 21,000+ people</span>
             </div>
           </div>
           <div className="text-center">
-            <h1 className="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">
-              Send Money Instantly with <br />
-              <p className="mt-4">
-                just a <span className="glass-card rounded-full px-3 bg-emerald-100 text-emerald-600 backdrop-blur-lg"> Phone Number</span> or&nbsp;
-                <span className="glass-card rounded-full px-3 bg-emerald-50 text-emerald-600">Email</span>
-              </p>
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">
+              Fastest way to manage<br /> 
+              payment anytime you want
             </h1>
-            <p className="mt-8 text-sm font-medium text-pretty text-gray-500 sm:text-xl/8">
+            <p className="mt-8 text-sm font-medium text-pretty text-gray-600 sm:text-xl/8">
               Fast, secure payments between friends, family and businesses
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Link
-                to="/register"
-                className="rounded-full bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Get started
-              </Link>
-              <a href="#" className="rounded-full shadow-gray-500 bg-white px-3.5 py-2.5 text-sm font-semibold text-black shadow-xs">
-                How It Works <span aria-hidden="true"></span>
-              </a>
-            </div>
+              <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-x-6">
+                <Link
+                  to="/register"
+                  className="w-full md:w-auto rounded-full bg-black px-6 py-3 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 text-center"
+                >
+                  Get started
+                </Link>
+                <Link 
+                  to="#" 
+                  className="w-full md:w-auto flex items-center justify-center gap-x-2 rounded-full shadow-gray-500 bg-white px-6 py-3 text-sm font-semibold text-black shadow-xs"
+                >
+                  <img className="w-5 h-5" src="/assets/apple.png" alt="appleIcon" />
+                  <span>Download on App Store</span>
+                </Link>
+              </div>
           </div>
         </div>
         <div

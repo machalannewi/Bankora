@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from "sonner";
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -122,6 +123,7 @@ function Register() {
       const data = await res.json();
 
       if (res.ok) {
+        toast.success("Registration Successful!")
         setSuccessMessage("Account created successfully! Redirecting to login...");
         setFormData({
           firstName: "",
@@ -140,6 +142,7 @@ function Register() {
         }, 2000);
       } else {
         if (data.errors) {
+          toast.error("Registration failed!")
           setErrors(data.errors);
         } else {
           setErrors({ 
@@ -162,7 +165,7 @@ function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex">
+    <div className="font-voyage min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex">
      {/* Left side - Image */}
       <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-teal-600/20 z-10"></div>
@@ -211,7 +214,7 @@ function Register() {
                 First Name
               </Label>
               <div className="relative mt-2">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
                 <Input
                   type="text"
                   id="firstName"
@@ -232,7 +235,7 @@ function Register() {
                 Last Name
               </Label>
               <div className="relative mt-2">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
                 <Input
                   type="text"
                   id="lastName"
@@ -254,7 +257,7 @@ function Register() {
               Username
             </Label>
             <div className="relative mt-2">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <Input
                 type="text"
                 id="username"
@@ -275,7 +278,7 @@ function Register() {
               Email Address
             </Label>
             <div className="relative mt-2">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <Input
                 type="email"
                 id="email"
@@ -296,7 +299,7 @@ function Register() {
               Phone Number
             </Label>
             <div className="relative mt-2">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <Input
                 type="tel"
                 id="phone"
@@ -317,7 +320,7 @@ function Register() {
               Password
             </Label>
             <div className="relative mt-2">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <Input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -332,7 +335,7 @@ function Register() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="text-purple-400 w-5 h-5" /> : <Eye className="text-purple-400 w-5 h-5" />}
               </button>
             </div>
             {errors.password && (
@@ -345,7 +348,7 @@ function Register() {
               Confirm Password
             </Label>
             <div className="relative mt-2">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <Input
                 type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
@@ -360,7 +363,7 @@ function Register() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showConfirmPassword ? <EyeOff className="text-purple-400 w-5 h-5" /> : <Eye className="text-purple-400 w-5 h-5" />}
               </button>
             </div>
             {errors.confirmPassword && (

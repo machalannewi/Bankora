@@ -61,10 +61,14 @@ export const NotificationProvider = ({ children }) => {
     setUnreadCount(0);
   };
 
-  const clearNotifications = () => {
+  const clearNotification = (id) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== id))
+  };
+
+  const clearAllNotifications = () => {
     setNotifications([]);
     setUnreadCount(0);
-  };
+  }
 
   return (
     <NotificationContext.Provider value={{
@@ -73,7 +77,8 @@ export const NotificationProvider = ({ children }) => {
       addNotification,
       markAsRead,
       markAllAsRead,
-      clearNotifications
+      clearNotification,
+      clearAllNotifications
     }}>
       {children}
     </NotificationContext.Provider>
