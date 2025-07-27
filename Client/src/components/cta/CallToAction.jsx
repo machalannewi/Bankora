@@ -14,12 +14,16 @@ export default function CallToAction() {
         <p className="text-gray-300 mb-8 text-sm md:text-base max-w-xl mx-auto">
           Join thousands of people moving money fast, secure, and with zero fees — all without needing account numbers.
         </p>
-        <a
-          href="#"
-          className="inline-block bg-green-500 text-black font-semibold px-8 py-4 rounded-full text-base hover:bg-green-400 transition duration-300 shadow-lg hover:shadow-xl"
-        >
-          Sign Up Free
-        </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button className="bg-white text-green-600 font-semibold px-6 py-3 rounded-full hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2">
+              <img className="w-6 h-6" src="/assets/apple.png" alt="App Store" />
+              Download for iOS
+            </button>
+            <button className="bg-green-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-green-800 transition-colors duration-200 flex items-center gap-2">
+              <img className="w-6 h-6" src="/assets/playstore.png" alt="Google Play" />
+              Download for Android
+            </button>
+          </div>
       </div>
     </section>
   );

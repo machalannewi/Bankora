@@ -4,22 +4,28 @@ import { useEffect, useRef } from "react";
 
 const testimonials = [
   {
-    name: "Jane Doe",
+    name: "Cosmas Ray",
     role: "Small Business Owner",
     quote: "I use this app to pay my staff weekly. It’s fast and reliable.",
-    image: "/assets/jane.jpg",
+    image: "/assets/cosmas.png",
+  },
+    {
+    name: "Janeth Stones",
+    role: "Student",
+    quote: "My parents send me money in seconds. So convenient!",
+    image: "/assets/janeth.png",
   },
   {
     name: "Samuel King",
     role: "Freelancer",
     quote: "No more waiting for bank transfers. It’s instant and secure!",
-    image: "/assets/samuel.jpg",
+    image: "/assets/samuel.png",
   },
   {
-    name: "Amara Yusuf",
-    role: "Student",
-    quote: "My parents send me money in seconds. So convenient!",
-    image: "/assets/amara.jpg",
+    name: "Anne Nadia",
+    role: "Virtual Assistant",
+    quote: "As a virtual assistant managing finances for multiple clients, efficiency and trust are non-negotiable. I couldn’t ask for a better banking partner.",
+    image: "/assets/jane.png",
   },
 ];
 

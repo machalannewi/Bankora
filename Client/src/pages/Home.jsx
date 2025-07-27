@@ -23,7 +23,6 @@ export default function Home() {
       <AppPreview />
       <Service />
       <Testimonial />
-      <SecuritySection />
       <CallToAction />
       <Footer />
     </div>

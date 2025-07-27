@@ -5,7 +5,7 @@ import { ShoppingCart } from "lucide-react"
 
 const Hero = () => {
   return (
-    <div className="-my-24">
+    <div id="home" className="-my-24">
       <div className="relative isolate px-6 pt-14 lg:px-8">
         <div
           aria-hidden="true"
