@@ -35,7 +35,7 @@ export default function HowItWorks() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
               viewport={{ once: true }}
-              className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-gray-200 transition-transform duration-300 hover:-rotate-1 hover:scale-[1.02] text-left"
+              className="bg-black rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-gray-200 transition-transform duration-300 hover:-rotate-1 hover:scale-[1.02] text-left"
             >
               <div className="h-56 w-full">
                 <img
@@ -45,9 +45,9 @@ export default function HowItWorks() {
                 />
               </div>
               <div className="p-5">
-                <p className="text-xs text-gray-500 mb-1 font-semibold tracking-wide">{step.step}</p>
-                <h3 className="text-lg font-semibold mb-1">{step.title}</h3>
-                <p className="text-sm text-gray-600">{step.action}</p>
+                <p className="text-xs text-white mb-1 font-semibold tracking-wide">{step.step}</p>
+                <h3 className="text-lg text-white font-semibold mb-1">{step.title}</h3>
+                <p className="text-sm text-white">{step.action}</p>
               </div>
             </motion.div>
           ))}

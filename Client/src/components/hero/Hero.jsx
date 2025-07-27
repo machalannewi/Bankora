@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom"
 import "../../global.css"
-import { ShoppingCart } from "lucide-react"
 
 
 const Hero = () => {
   return (
-    <div id="home" className="-my-24">
+    <div id="home" className="-my-12 lg:-my-24">
       <div className="relative isolate px-6 pt-14 lg:px-8">
         <div
           aria-hidden="true"
@@ -28,10 +27,10 @@ const Hero = () => {
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">
-              Fastest way to manage<br /> 
+              Fastest way to manage<br />
               payment anytime you want
             </h1>
-            <p className="mt-8 text-sm font-medium text-pretty text-gray-600 sm:text-xl/8">
+            <p className="mt-8 font-medium text-pretty text-gray-600 sm:text-xl/8">
               Fast, secure payments between friends, family and businesses
             </p>
               <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-x-6">
