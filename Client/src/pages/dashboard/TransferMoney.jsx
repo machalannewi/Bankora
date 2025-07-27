@@ -27,7 +27,7 @@ const TransferMoney = () => {
       setError(''); // Clear previous errors
       
       try {
-        const res = await fetch(`http://localhost:5000/api/user/fetch-user/${user?.user.id}`, {
+        const res = await fetch(`https://bankora.onrender.com/api/user/fetch-user/${user?.user.id}`, {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',
