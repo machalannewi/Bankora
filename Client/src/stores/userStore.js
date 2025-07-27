@@ -24,7 +24,7 @@ persist(
                     }
                     
                     // Fixed URL - removed extra 'balance' and fixed localhost
-                    const res = await fetch(`http://localhost:5000/api/user/balance/${user.id}`);
+                    const res = await fetch(`https://bankora.onrender.com/api/user/balance/${user.id}`);
                     
                     if (!res.ok) {
                         throw new Error(`HTTP error! status: ${res.status}`);

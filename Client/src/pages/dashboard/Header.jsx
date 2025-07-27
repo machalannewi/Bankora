@@ -73,7 +73,7 @@ const ProfileHeader = ({ user, time, handleLogOut, isLoading, onBellClick, notif
 
       console.log('Sending FormData with file:', profileImageFile?.name);
 
-      const res = await fetch(`http://localhost:5000/api/profile/update/${user?.user.id}`, {
+      const res = await fetch(`https://bankora.onrender.com/api/profile/update/${user?.user.id}`, {
         method: "POST",
         body: formData
       });
