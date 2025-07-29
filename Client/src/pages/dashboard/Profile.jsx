@@ -81,7 +81,7 @@ const ProfileUpdate = () => {
           formData.append('image', profileImageFile);
         }
 
-        const res = await fetch(`http://localhost:5000/api/profile/update/${user?.user.id}`, {
+        const res = await fetch(`https://bankora.onrender.com/api/profile/update/${user?.user.id}`, {
           method: "POST",
           body: formData
         });
@@ -139,7 +139,7 @@ const ProfileUpdate = () => {
       setIsUpdatingPassword(true);
 
       try {
-        const res = await fetch(`http://localhost:5000/api/profile/change-password/${user?.user.id}`, {
+        const res = await fetch(`https://bankora.onrender.com/api/profile/change-password/${user?.user.id}`, {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',

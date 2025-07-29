@@ -43,7 +43,7 @@ const Dashboard = () => {
             setTime(time.getHours())
             
             // Initialize socket connection
-            socketRef.current = io('http://localhost:5000')
+            socketRef.current = io('https://bankora.onrender.com')
             
             // Socket event listeners
             socketRef.current.on('connect', () => {
@@ -104,7 +104,7 @@ const Dashboard = () => {
     
     useEffect(() => {
         if (user?.user?.id) {
-            axios.get(`http://localhost:5000/api/transactions/${user.user.id}`)
+            axios.get(`https://bankora.onrender.com/api/transactions/${user.user.id}`)
                 .then(res => {
                     console.log("Fetched transactions:", res.data);
                     setTransactions(res.data); // This now updates the context
@@ -143,7 +143,7 @@ const Dashboard = () => {
     // Fetch balance from server
     const fetchBalance = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/user/balance/${user?.user.id}`)
+            const response = await fetch(`https://bankora.onrender.com/api/user/balance/${user?.user.id}`)
             const data = await response.json()
 
             console.log(data);

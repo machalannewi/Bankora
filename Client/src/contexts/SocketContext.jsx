@@ -21,7 +21,7 @@ export const SocketProvider = ({ children }) => {
         // Only create socket if user is authenticated
         if (user && user.id) {
             // Create socket connection
-            socketRef.current = io('http://localhost:5000', {
+            socketRef.current = io('https://bankora.onrender.com', {
                 auth: {
                     userId: user.id,
                     token: useUserStore.getState().token
