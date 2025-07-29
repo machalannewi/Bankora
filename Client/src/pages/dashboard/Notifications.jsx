@@ -77,7 +77,7 @@ const Notifications = ({ notifications, markAllAsRead, markAsRead }) => {
     `}</style>
 
 return (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  <div className="font-voyage min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
     {/* Header */}
     <div className="bg-white/80 backdrop-blur-lg border-b border-white/20 sticky top-0 z-10">
       <div className="max-w-md mx-auto px-6 py-5">
@@ -114,9 +114,6 @@ return (
           <div className="relative">
             <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Check className="h-12 w-12 text-blue-500" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-              <Check className="h-4 w-4 text-white" />
             </div>
           </div>
           <h3 className="text-xl font-bold text-slate-900 mb-2">All caught up!</h3>

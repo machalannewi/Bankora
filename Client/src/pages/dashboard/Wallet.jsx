@@ -10,6 +10,7 @@ import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
 import { useNotifications } from "@/contexts/NotificationContext"
+import { useTransactions } from "@/contexts/TransactionContext";
 import {
   PhoneIcon,
   SignalIcon,
@@ -20,22 +21,17 @@ import {
 const Dashboard = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [balance, setBalance] = useState(0)
-    // const [notifications, setNotifications] = useState([])
-    const [bellNotifications, setBellNotifications] = useState([])
     const [isConnected, setIsConnected] = useState(false)
     const [time, setTime] = useState(new Date())
     const [showBalance, setShowBalance] = useState(true);
-    const [transactions, setTransactions] = useState([]);
     const [showAll, setShowAll] = useState(false)
     const [copySuccess, setCopySuccess] = useState("");
     const { notifications, unreadCount, addNotification, clearNotification, clearAllNotifications } = useNotifications();
-    
+    const { transactions, setTransactions} = useTransactions()
     
     const navigate = useNavigate()
     const socketRef = useRef(null)
     const user = useUserStore((state) => state.user)
-    const cancelUser = useUserStore((state) => state.cancelUser);
-    const clearStorage = useUserStore((state) => state.clearStorage);
 
 
 
@@ -47,7 +43,7 @@ const Dashboard = () => {
             setTime(time.getHours())
             
             // Initialize socket connection
-            socketRef.current = io('https://bankora.onrender.com')
+            socketRef.current = io('http://localhost:5000')
             
             // Socket event listeners
             socketRef.current.on('connect', () => {
@@ -99,12 +95,6 @@ const Dashboard = () => {
     }, [user?.user.email, user?.user.phone, user?.user.balance])
     
 
-      const handleBellClick = () => {
-        // Mark all notifications as read
-        setBellNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
-        navigate("/notification")
-    };
-
     useEffect(() => {
         if(!user?.user) {
           navigate("/login")
@@ -113,13 +103,15 @@ const Dashboard = () => {
 
     
     useEffect(() => {
-    axios.get(`https://bankora.onrender.com/api/transactions/${user?.user.id}`)
-        .then(res => {
-        console.log("Fetched transactions:", res.data);
-        setTransactions(res.data);
-        })
-        .catch(err => console.error(err));
-    }, [user?.user.id]);
+        if (user?.user?.id) {
+            axios.get(`http://localhost:5000/api/transactions/${user.user.id}`)
+                .then(res => {
+                    console.log("Fetched transactions:", res.data);
+                    setTransactions(res.data); // This now updates the context
+                })
+                .catch(err => console.error(err));
+        }
+    }, [user?.user?.id, setTransactions]);
 
     console.log(transactions)
 
@@ -151,7 +143,7 @@ const Dashboard = () => {
     // Fetch balance from server
     const fetchBalance = async () => {
         try {
-            const response = await fetch(`https://bankora.onrender.com/api/user/balance/${user?.user.id}`)
+            const response = await fetch(`http://localhost:5000/api/user/balance/${user?.user.id}`)
             const data = await response.json()
 
             console.log(data);
@@ -182,47 +174,15 @@ const Dashboard = () => {
         }
     }
 
-    // Handle logout
-    function handleLogOut() {
-        setIsLoading(true)
-        
-        // Disconnect socket
-        if (socketRef.current) {
-            socketRef.current.disconnect()
-        }
-        
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("user");
-        toast.success("Logged out successfully!")
-        setTimeout(() => {
-            cancelUser()
-            clearStorage()
-            navigate("/login")
-        }, 2000)
-    }
-
     // Navigate to transfer page
     function sendMoney() {
         navigate("/transfer")
     }
 
-    // Clear notification
-    // const clearNotification = (id) => {
-    //     setNotifications(prev => prev.filter(notif => notif.id !== id))
-    // }
-
-    // // Clear all notifications
-    // const clearAllNotifications = () => {
-    //     () => clearNotifications()
-    // }
-
     return (
         <div className="min-h-screen bg-gray-50 font-voyage">
             {/* Header */}
-            <ProfileHeader user={user} notificationCount={unreadCount} onBellClick={handleBellClick} handleLogOut={() => handleLogOut()} isLoading={isLoading} time={time}/>
+            <ProfileHeader user={user} notificationCount={unreadCount} time={time}/>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Main Balance Card */}
@@ -525,54 +485,6 @@ const Dashboard = () => {
                         )}
                     </div>
                 </div>
-
-                {/* Stats Cards
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">This Month</p>
-                                <p className="text-2xl font-bold text-gray-900">$1,234.56</p>
-                                <p className="text-sm text-green-600">+12% from last month</p>
-                            </div>
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Total Spent</p>
-                                <p className="text-2xl font-bold text-gray-900">$567.89</p>
-                                <p className="text-sm text-red-600">+8% from last month</p>
-                            </div>
-                            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Savings Goal</p>
-                                <p className="text-2xl font-bold text-gray-900">68%</p>
-                                <p className="text-sm text-blue-600">$680 of $1,000</p>
-                            </div>
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
             </div>
             <BottomNavigation />
         </div>

@@ -1,4 +1,4 @@
-
+import {motion} from "framer-motion"
 
 
 export default function CallToAction() {
@@ -15,14 +15,28 @@ export default function CallToAction() {
           Join thousands of people moving money fast, secure, and with zero fees — all without needing account numbers.
         </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+           <motion.div
+            initial={{opacity: 0, x: -100}}
+            whileInView={{opacity: 1, x: 0}}
+            transition={{duration: 0.8}}
+            viewport={{ once: true, amount: 0.3 }}
+            >
             <button className="bg-white text-green-600 font-semibold px-6 py-3 rounded-full hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2">
               <img className="w-6 h-6" src="/assets/apple.png" alt="App Store" />
               Download for iOS
             </button>
+          </motion.div>
+            <motion.div
+            initial={{opacity: 0, x: 100}}
+            whileInView={{opacity: 1, x: 0}}
+            transition={{duration: 0.8}}
+            viewport={{ once: true, amount: 0.3 }}
+            >
             <button className="bg-green-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-green-800 transition-colors duration-200 flex items-center gap-2">
               <img className="w-6 h-6" src="/assets/playstore.png" alt="Google Play" />
               Download for Android
             </button>
+            </motion.div>
           </div>
       </div>
     </section>

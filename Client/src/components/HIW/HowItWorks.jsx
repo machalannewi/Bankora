@@ -34,8 +34,8 @@ export default function HowItWorks() {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className="bg-black rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-gray-200 transition-transform duration-300 hover:-rotate-1 hover:scale-[1.02] text-left"
+              viewport={{ once: true, amount: 0.3 }}
+              className="bg-gray-700 rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-gray-200 transition-transform duration-300 hover:-rotate-1 hover:scale-[1.02] text-left"
             >
               <div className="h-56 w-full">
                 <img

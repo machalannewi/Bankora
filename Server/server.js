@@ -25,7 +25,7 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = new Server(server, {
     cors: {
-        origin: "https://bankora.vercel.app", 
+        origin: "http://localhost:5173", 
         methods: ["GET", "POST"]
     }
 });
@@ -33,7 +33,7 @@ const io = new Server(server, {
 
 app.use(express.json())
 app.use(cors({
-    origin: "https://bankora.vercel.app"
+    origin: "http://localhost:5173"
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
