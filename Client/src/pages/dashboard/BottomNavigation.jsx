@@ -13,8 +13,8 @@ const BottomNavigation = () => {
     { name: 'Home', icon: Home, route: "/wallet" },
     { name: 'Transactions', icon: ChartNoAxesCombined, route: "/transactions" },
     { name: 'Pay', icon: WalletCards, route: "/transfer" },
-    { name: 'Cards', icon: CreditCard, route: "/transfer" },
-    { name: 'More', icon: LayoutPanelLeft, route: "/transfer" }
+    { name: 'Cards', icon: CreditCard, route: "/card" },
+    { name: 'More', icon: LayoutPanelLeft, route: "#" }
   ];
 
   const isActive = (route) => location.pathname === route

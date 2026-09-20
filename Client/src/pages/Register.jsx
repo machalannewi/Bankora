@@ -384,7 +384,7 @@ function Register() {
               />
               <Label htmlFor="agreeToTerms" className="ml-2 text-sm text-gray-600">
                 I agree to the{' '}
-                <a href="#" className="text-purple-600 hover:text-purple-700">Terms of Service</a>
+                <a href="#" className="text-purple-600 hover:text-purple-700">Terms</a>
                 {' '}and{' '}
                 <a href="#" className="text-purple-600 hover:text-purple-700">Privacy Policy</a>
               </Label>
