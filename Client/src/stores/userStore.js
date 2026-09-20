@@ -1,5 +1,6 @@
 import {create} from "zustand"
 import { persist } from 'zustand/middleware';
+import { authHeader } from "@/lib/authHeader";
 
 
 const useUserStore = create(
@@ -24,7 +25,9 @@ persist(
                     }
                     
                     // Fixed URL - removed extra 'balance' and fixed localhost
-                    const res = await fetch(`https://bankora.onrender.com/api/user/balance/${user.id}`);
+                    const res = await fetch(`https://bankora.onrender.com/api/user/balance/${user.id}`, {
+                        headers: authHeader()
+                    });
                     
                     if (!res.ok) {
                         throw new Error(`HTTP error! status: ${res.status}`);

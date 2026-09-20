@@ -1,9 +1,10 @@
 import express from "express"
 import multer from "multer"
-import fs from "fs"  // Added missing import
+import fs from "fs"
 import path from "path"
 import { fileURLToPath } from 'url';
 import insertProfile from "../Model/profile.js"
+import { verifyToken } from "../Middleware/verifyToken.js";
 
 const router = express.Router();
 
@@ -32,14 +33,14 @@ const upload = multer({
     }
 });
 
-router.post("/update/:userId", upload.single('image'), async (req, res) => {
+router.post("/update/:userId", verifyToken, upload.single('image'), async (req, res) => {
     try {
-        console.log('Request body:', req.body);
-        console.log('Uploaded file:', req.file);
-        
         const userId = parseInt(req.params.userId);
-        console.log(userId)
-       
+
+        if (req.user.id !== userId) {
+            return res.status(403).json({ success: false, message: "Forbidden" });
+        }
+
         const {
             firstName,
             lastName,

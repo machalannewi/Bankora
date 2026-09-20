@@ -3,6 +3,7 @@ import { Camera, X, Edit2, User, Phone, Mail, AtSign, Lock, Eye, EyeOff, ArrowLe
 import { toast } from "sonner";
 import { useNavigate, Link } from 'react-router-dom';
 import useUserStore from '@/stores/userStore';
+import { authHeader } from '@/lib/authHeader';
 
 const ProfileUpdate = () => {
     const {user, cancelUser, clearStorage } = useUserStore();
@@ -83,6 +84,7 @@ const ProfileUpdate = () => {
 
         const res = await fetch(`https://bankora.onrender.com/api/profile/update/${user?.user.id}`, {
           method: "POST",
+          headers: authHeader(),
           body: formData
         });
 

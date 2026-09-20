@@ -3,6 +3,7 @@ import { useLocation, Link } from "react-router-dom"
 import { ArrowLeft, Send, User, DollarSign, CheckCircle, AlertCircle, Eye, EyeOff } from "lucide-react"
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
+import { authHeader } from "@/lib/authHeader"
 
 const TransferMoney = () => {
   const [isTransferLoading, setIsTransferLoading] = useState(false) // Separate loading for transfer
@@ -31,6 +32,7 @@ const TransferMoney = () => {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',
+            ...authHeader(),
           },
           body: JSON.stringify({
             receiverIdentifier: value.trim()
