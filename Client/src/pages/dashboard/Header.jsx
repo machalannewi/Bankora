@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { UserCog, Bell, Camera, X, Edit2, User, Phone, Mail, AtSign } from 'lucide-react';
 import { BellIcon } from '@heroicons/react/24/solid';
 import useUIStore from '@/stores/uiStore';
+import { authHeader } from '@/lib/authHeader';
 
 const ProfileHeader = ({ user, time, handleLogOut, isLoading, onBellClick, notificationCount }) => {
   const [profileImage, setProfileImage] = useState(user?.user.image || '');
@@ -75,6 +76,7 @@ const ProfileHeader = ({ user, time, handleLogOut, isLoading, onBellClick, notif
 
       const res = await fetch(`https://bankora.onrender.com/api/profile/update/${user?.user.id}`, {
         method: "POST",
+        headers: authHeader(),
         body: formData
       });
 

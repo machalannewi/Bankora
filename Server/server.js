@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 import { Server } from "socket.io";
 import authRoute from "./Route/authRoute.js"
 import transfer from "./Route/transfer.js"
-import fetchUser from "./Route/transfer.js"
 import updateProfile from "./Route/updateProfile.js"
 import updateBalance from "./Route/updateBalance.js"
 
@@ -59,7 +58,6 @@ io.on("connection", (socket) => {
 
 app.use("/api", authRoute)
 app.use("/api", transfer)
-app.use("/api/user", fetchUser)
 app.use("/api/profile", updateProfile)
 app.use("/api/user", updateBalance)
 

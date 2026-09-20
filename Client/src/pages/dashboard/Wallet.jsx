@@ -10,6 +10,7 @@ import { UserCog, Wallet, Eye, EyeOff, Copy, Plus, ArrowUpRight, DicesIcon, Send
 import io from 'socket.io-client'
 import useUserStore from "@/stores/userStore"
 import { useNotifications } from "@/contexts/NotificationContext"
+import { authHeader } from "@/lib/authHeader"
 import {
   PhoneIcon,
   SignalIcon,
@@ -113,7 +114,7 @@ const Dashboard = () => {
 
     
     useEffect(() => {
-    axios.get(`https://bankora.onrender.com/api/transactions/${user?.user.id}`)
+    axios.get(`https://bankora.onrender.com/api/transactions/${user?.user.id}`, { headers: authHeader() })
         .then(res => {
         console.log("Fetched transactions:", res.data);
         setTransactions(res.data);
@@ -151,7 +152,9 @@ const Dashboard = () => {
     // Fetch balance from server
     const fetchBalance = async () => {
         try {
-            const response = await fetch(`https://bankora.onrender.com/api/user/balance/${user?.user.id}`)
+            const response = await fetch(`https://bankora.onrender.com/api/user/balance/${user?.user.id}`, {
+                headers: authHeader()
+            })
             const data = await response.json()
 
             console.log(data);
